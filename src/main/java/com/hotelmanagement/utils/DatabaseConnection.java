@@ -36,6 +36,9 @@ public class DatabaseConnection {
         return dataSource.getConnection();
     }
 
+public static void main(String[] args) throws SQLException {
+	System.out.println(DatabaseConnection.getInstance().getConnection());
+}
 
 }
 
