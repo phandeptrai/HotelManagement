@@ -1,0 +1,36 @@
+@charset "UTF-8";
+.sidebar {
+    width: 220px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background-color: #343a40;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+}
+
+.sidebar h3 {
+    color: #fff;
+    margin-bottom: 30px;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.sidebar ul li {
+    margin: 15px 0;
+}
+
+.sidebar ul li a {
+    color: #ccc;
+    text-decoration: none;
+    font-size: 16px;
+    transition: color 0.2s;
+}
+
+.sidebar ul li a:hover {
+    color: #fff;
+}
