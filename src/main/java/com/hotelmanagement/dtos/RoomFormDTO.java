@@ -1,4 +1,4 @@
-package com.hotelmanagement.admin.dtos;
+package com.hotelmanagement.dtos;
 
 import com.hotelmanagement.room.models.enums.RoomStatus;
 

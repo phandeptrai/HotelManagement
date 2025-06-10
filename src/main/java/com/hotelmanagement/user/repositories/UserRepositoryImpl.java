@@ -2,7 +2,6 @@ package com.hotelmanagement.user.repositories;
 
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -26,7 +25,7 @@ public class UserRepositoryImpl implements UserRepository {
 	}
 
 	@Override
-	public Optional<User> findByUsername(String username) {
+	public User findByUsername(String username) {
 		return userDAO.findByUsername(username);
 	}
 

@@ -1,7 +1,6 @@
 package com.hotelmanagement.user.services;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,7 +21,7 @@ public class UserServiceImpl implements UserService {
 	}
 	
 	@Override
-	public Optional<User> findByUsername(String username) {
+	public User findByUsername(String username) {
 		return userRepository.findByUsername(username);
 	}
 

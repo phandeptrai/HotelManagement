@@ -1,7 +1,6 @@
 package com.hotelmanagement.user.dao;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
 
@@ -11,7 +10,7 @@ import com.hotelmanagement.user.entities.User;
 public interface UserDAO {
 	List<User> findPaged(int pageIndex, int pageSize, int userId);
 
-	Optional<User> findByUsername(String username);
+	User findByUsername(String username);
 
 	List<User> getAllUser();
 	

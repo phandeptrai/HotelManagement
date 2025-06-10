@@ -23,10 +23,11 @@ public class AuthServiceImpl implements AuthService{
 	}
 
 	public void signUp(SignUpRequest signUpRequest) {
-		userRepository.findByUsername(signUpRequest.getUsername()).ifPresent(existingUser -> {
+		User existingUser = userRepository.findByUsername(signUpRequest.getUsername());
+		if (existingUser != null) {
 			throw new ResponseStatusException(HttpStatus.CONFLICT,
-					"User with username " + signUpRequest.getUsername() + " is already exists.");
-		});
+				"User with username " + signUpRequest.getUsername() + " already exists.");
+		}
 
 		String encodedPassword = passwordEncoder.encode(signUpRequest.getPassword());
 		String username = signUpRequest.getUsername();

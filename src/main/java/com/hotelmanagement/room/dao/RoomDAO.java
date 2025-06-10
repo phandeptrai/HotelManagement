@@ -2,7 +2,7 @@ package com.hotelmanagement.room.dao;
 
 import java.util.List;
 
-import com.hotelmanagement.admin.dtos.RoomFormDTO;
+import com.hotelmanagement.dtos.RoomFormDTO;
 import com.hotelmanagement.room.models.Room;
 import com.hotelmanagement.room.models.RoomType;
 import com.hotelmanagement.room.models.enums.RoomStatus;

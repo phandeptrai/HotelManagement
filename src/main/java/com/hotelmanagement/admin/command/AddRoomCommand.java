@@ -1,6 +1,6 @@
 package com.hotelmanagement.admin.command;
 
-import com.hotelmanagement.admin.dtos.RoomFormDTO;
+import com.hotelmanagement.dtos.RoomFormDTO;
 import com.hotelmanagement.room.services.RoomService;
 
 public class AddRoomCommand implements AdminCommand {

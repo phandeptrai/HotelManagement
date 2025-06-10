@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.hotelmanagement.admin.dtos.RoomFormDTO;
+import com.hotelmanagement.dtos.RoomFormDTO;
 import com.hotelmanagement.room.dao.RoomDAO;
 import com.hotelmanagement.room.models.Room;
 import com.hotelmanagement.room.models.RoomType;

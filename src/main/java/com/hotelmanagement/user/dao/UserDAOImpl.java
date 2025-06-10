@@ -66,19 +66,36 @@ public class UserDAOImpl implements UserDAO {
 	}
 
 	@Override
-	public Optional<User> findByUsername(String username) {
+	public User findByUsername(String username) {
 		String sql = "SELECT * FROM users WHERE username = ?";
 		try (Connection conn = dataSource.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, username);
 			try (ResultSet rs = pstmt.executeQuery()) {
 				if (rs.next()) {
-					return Optional.of(mapUser(rs));
+					return mapUser(rs);
 				}
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return Optional.empty();
+		return null;
+	}
+
+	@Override
+	public void update(User user) {
+		String sql = "UPDATE users SET fullName = ?, email = ?, phoneNumber = ?, password = ?, role = ? WHERE username = ?";
+		try (Connection conn = dataSource.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setString(1, user.getFullName());
+			pstmt.setString(2, user.getEmail());
+			pstmt.setString(3, user.getPhoneNumber());
+			pstmt.setString(4, user.getPassword());
+			pstmt.setString(5, user.getRole().name());
+			pstmt.setString(6, user.getUsername());
+
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -88,19 +105,6 @@ public class UserDAOImpl implements UserDAO {
 			pstmt.setString(1, user.getUsername());
 			pstmt.setString(2, user.getPassword());
 			pstmt.setString(3, user.getRole().name());
-			pstmt.executeUpdate();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
-
-	@Override
-	public void update(User user) {
-		String sql = "UPDATE users SET password = ?, role = ? WHERE username = ?";
-		try (Connection conn = dataSource.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-			pstmt.setString(1, user.getPassword());
-			pstmt.setString(2, user.getRole().name());
-			pstmt.setString(3, user.getUsername());
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();

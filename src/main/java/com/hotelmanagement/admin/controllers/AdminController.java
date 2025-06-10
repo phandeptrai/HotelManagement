@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,12 +17,15 @@ import com.hotelmanagement.admin.command.AddRoomCommand;
 import com.hotelmanagement.admin.command.AdminCommand;
 import com.hotelmanagement.admin.command.CommandExecutor;
 import com.hotelmanagement.admin.command.EditRoomCommand;
+import com.hotelmanagement.admin.command.EditUserCommand;
 import com.hotelmanagement.admin.command.LockRoomCommand;
-import com.hotelmanagement.admin.dtos.RoomFormDTO;
+import com.hotelmanagement.dtos.RoomFormDTO;
+import com.hotelmanagement.dtos.UserFormDTO;
 import com.hotelmanagement.room.models.Room;
 import com.hotelmanagement.room.models.enums.RoomStatus;
 import com.hotelmanagement.room.services.RoomService;
 import com.hotelmanagement.user.entities.User;
+import com.hotelmanagement.user.entities.UserRole;
 import com.hotelmanagement.user.services.UserService;
 
 @Controller
@@ -36,6 +40,9 @@ public class AdminController {
 
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
 	// ==============================
 	// ROOM MANAGEMENT
@@ -126,6 +133,45 @@ public class AdminController {
 		userService.deleteUserById(username);
 		return "redirect:/admin/user/usermanagement";
 	}
+
+	/*
+	 * @GetMapping("/user/edit")
+	 * 
+	 * @PreAuthorize("hasAuthority('ROLE_ADMIN')") public String
+	 * showEditUserForm(@RequestParam("username") String username, Model model) {
+	 * User user = userService.findByUsername(username); if(user == null) { return
+	 * "redirect:/admin/user/usermanagement"; } model.addAttribute("user", user);
+	 * model.addAttribute("roles", UserRole.values()); return "admin/user/edit"; }
+	 */
+	@GetMapping("/user/edit")
+	@PreAuthorize("hasAuthority('ROLE_ADMIN')")
+	public String showEditUserForm(@RequestParam("username") String username, Model model) {
+		User user = userService.findByUsername(username);
+		if (user == null) {
+			return "redirect:/admin/user/usermanagement";
+		}
+
+		UserFormDTO dto = new UserFormDTO();
+		dto.setUserID(user.getId());
+		dto.setUsername(user.getUsername());
+		dto.setFullName(user.getFullName());
+		dto.setEmail(user.getEmail());
+		dto.setPhoneNumber(user.getPhoneNumber());
+		dto.setUserRole(user.getRole());
+
+		model.addAttribute("user", dto);
+		model.addAttribute("roles", UserRole.values());
+		return "admin/user/edit";
+	}
+
+	@PostMapping("/user/edit")
+	@PreAuthorize("hasAuthority('ROLE_ADMIN')")
+	public String updateUser(@ModelAttribute("user") UserFormDTO dto) {
+	    AdminCommand command = new EditUserCommand(userService, dto, passwordEncoder);
+	    commandExecutor.execute(command);
+	    return "redirect:/admin/user/usermanagement";
+	}
+	
 	// ==============================
 	// ERROR PAGE
 	// ==============================

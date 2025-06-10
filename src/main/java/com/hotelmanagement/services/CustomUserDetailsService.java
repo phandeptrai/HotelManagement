@@ -1,7 +1,5 @@
 package com.hotelmanagement.services;
 
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -22,12 +20,12 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		Optional<User> foundUserOpt = userRepository.findByUsername(username);
-		if (!foundUserOpt.isPresent()) {
+		User foundUserOpt = userRepository.findByUsername(username);
+		if (foundUserOpt == null) {
 			throw new UsernameNotFoundException("No user found with this username: " + username);
 		}
 
-		return foundUserOpt.get();
+		return foundUserOpt;
 	}
 
 }
