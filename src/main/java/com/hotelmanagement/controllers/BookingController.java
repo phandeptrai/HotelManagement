@@ -10,6 +10,7 @@ import com.hotelmanagement.services.IServiceBooking;
 import com.hotelmanagement.services.PaymentMethodService;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Controller
@@ -42,16 +44,9 @@ public class BookingController {
 	}
 
 	@GetMapping("/getform")
-	public String getFormBooking(//@RequestParam(required = false) Integer roomId,
-//								@RequestParam(required = false) Integer roomPrice,
-								Model model) {
+	public String getFormBooking(Model model) {
 		BookingRequest bookingRequest = new BookingRequest();
-//		if (roomId != null) {
-//			bookingRequest.setRoomId(roomId);
-//		}
-//		if (roomPrice != null) {
-//			bookingRequest.setRoomPrice(roomPrice);
-//		}
+		bookingRequest.setRoomPrice(20000);
 		model.addAttribute("request", bookingRequest);
 		model.addAttribute("availableServices", services.getAllServices());
 		model.addAttribute("paymentMethods", paymentMethodService.getAllPaymentMethods());
@@ -60,7 +55,7 @@ public class BookingController {
 
 	@PostMapping("/bookroom")
 	public String handleAction(@Valid @ModelAttribute("request") BookingRequest request, 
-			BindingResult bindingResult, Model model, HttpServletRequest servletRequest) {
+			BindingResult bindingResult, Model model, HttpServletRequest servletRequest, HttpSession session) {
 
 		// Validate ngày check-in và check-out
 		if (request.getCheckInDate() != null && request.getCheckOutDate() != null) {
@@ -90,6 +85,10 @@ public class BookingController {
 		}
 
 		try {
+			// Store booking request in session
+			session.setAttribute("bookingRequest", request);
+			
+			// Sử dụng tổng tiền đã tính để tạo payment request
 			PaymentRequest paymentRequest = new PaymentRequest(request, totalPrice, strategyName);
 			PaymentStrategy strategy = context.getBean(strategyName, PaymentStrategy.class);
 			return strategy.pay(servletRequest, paymentRequest);
@@ -109,13 +108,24 @@ public class BookingController {
 
 	//  Tách logic tính tổng giá
 	private int calculateTotalPrice(BookingRequest request) {
-		int total = request.getRoomPrice();
-		for (SelectedService s : request.getSelectedServices()) {
-			if (s.isSelected()) {
-				int servicePrice = services.getPriceById(s.getServiceId());
-				total += servicePrice * s.getQuantity();
+		// Tính số ngày đặt phòng
+		long numberOfDays = ChronoUnit.DAYS.between(request.getCheckInDate(), request.getCheckOutDate());
+		
+		// Tính tổng tiền phòng cho toàn bộ số ngày
+		int totalRoomPrice = request.getRoomPrice() * (int)numberOfDays;
+		
+		// Tính tổng tiền dịch vụ
+		int totalServicePrice = 0;
+		if (request.getSelectedServices() != null) {
+			for (SelectedService s : request.getSelectedServices()) {
+				if (s.isSelected()) {
+					int servicePrice = services.getPriceById(s.getServiceId());
+					totalServicePrice += servicePrice * s.getQuantity();
+				}
 			}
 		}
-		return total;
+		
+		// Tổng tiền = tiền phòng + tiền dịch vụ
+		return totalRoomPrice + totalServicePrice;
 	}
 }

@@ -341,6 +341,10 @@
 							<label class="form-label">Số ngày đặt phòng:</label>
 							<input type="text" class="form-control" id="totalDays" readonly />
 						</div>
+
+						<!-- Hidden inputs cho giá phòng và tổng tiền -->
+						<form:hidden path="roomPrice" id="roomPriceInput" />
+						<form:hidden path="totalPrice" id="totalPriceInput" />
 					</div>
 
 					<!-- Dịch vụ đi kèm -->
@@ -407,7 +411,7 @@
 						<div class="price-summary">
 							<div class="price-item">
 								<span>Giá phòng/ngày:</span>
-								<span class="price-value" id="roomPricePerDay">${request.roomPrice != null ? request.roomPrice : 2000000} VNĐ</span>
+								<span class="price-value" id="roomPricePerDay">${request.roomPrice != null ? request.roomPrice : 20000} VNĐ</span>
 							</div>
 							<div class="price-item">
 								<span>Số ngày:</span>
@@ -441,7 +445,7 @@
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 	<script>
 		// Lấy giá phòng từ BookingRequest, nếu không có thì dùng giá mặc định
-		const ROOM_PRICE_PER_DAY = ${request.roomPrice != null ? request.roomPrice : 2000000};
+		const ROOM_PRICE_PER_DAY = ${request.roomPrice != null ? request.roomPrice : 20000};
 
 		function calculateTotalDays() {
 			const checkInDate = new Date(document.getElementById('checkInDate').value);
@@ -491,9 +495,17 @@
 			const totalRoomPrice = ROOM_PRICE_PER_DAY * totalDays;
 			const totalPrice = totalRoomPrice + servicesTotal;
 
+			// Cập nhật giá phòng vào hidden input
+			document.getElementById('roomPriceInput').value = ROOM_PRICE_PER_DAY;
+
+			// Cập nhật hiển thị giá
+			document.getElementById('roomPricePerDay').textContent = ROOM_PRICE_PER_DAY.toLocaleString() + ' VNĐ';
 			document.getElementById('totalRoomPrice').textContent = totalRoomPrice.toLocaleString() + ' VNĐ';
 			document.getElementById('services-total').textContent = servicesTotal.toLocaleString() + ' VNĐ';
 			document.getElementById('total-price').textContent = totalPrice.toLocaleString() + ' VNĐ';
+
+			// Cập nhật tổng tiền vào hidden input để gửi về server
+			document.getElementById('totalPriceInput').value = totalPrice;
 		}
 
 		// Add event listeners for checkboxes and quantity inputs

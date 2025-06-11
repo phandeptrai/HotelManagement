@@ -5,22 +5,30 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
+import javax.sql.DataSource;
+
 import org.springframework.stereotype.Repository;
 
 import com.hotelmanagement.dtos.BookingRequest;
-import com.hotelmanagement.utils.DatabaseConnection;
 
 @Repository
 public class BookingDAO {
-    public void bookRoom(BookingRequest bookingRequest) {
-        try (Connection conn = DatabaseConnection.getInstance().getConnection()) {
-            // 1. Insert booking
-            String sql = "INSERT INTO roombookings(userID, roomID, checkInDate, checkOutDate) VALUES (?, ?, ?, ?)";
+	private final DataSource dataSource;
+	
+    public BookingDAO(DataSource dataSource) {
+		this.dataSource = dataSource;
+	}
+
+	public void bookRoom(BookingRequest bookingRequest) {
+        try (Connection conn = dataSource.getConnection()) {
+            // 1. Insert booking với tổng tiền
+            String sql = "INSERT INTO roombookings(userID, roomID, checkInDate, checkOutDate, totalAmount) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             stmt.setInt(1, bookingRequest.getUserId());
             stmt.setInt(2, bookingRequest.getRoomId());
             stmt.setDate(3, java.sql.Date.valueOf(bookingRequest.getCheckInDate()));
             stmt.setDate(4, java.sql.Date.valueOf(bookingRequest.getCheckOutDate()));
+            stmt.setInt(5, bookingRequest.getTotalPrice());
             stmt.executeUpdate();
 
             // 2. Lấy bookingID tự tăng
@@ -31,10 +39,11 @@ public class BookingDAO {
             }
 
             // 3. Insert các dịch vụ đi kèm nếu có
-            if (bookingRequest.getSelectedServices() != null) {
+            if (bookingRequest.getSelectedServices() != null && !bookingRequest.getSelectedServices().isEmpty()) {
                 String serviceSql = "INSERT INTO servicebookings(bookingID, serviceID, quantity) VALUES (?, ?, ?)";
                 PreparedStatement serviceStmt = conn.prepareStatement(serviceSql);
-                for (var service : bookingRequest.getSelectedServices()) {
+                
+                for (com.hotelmanagement.dtos.SelectedService service : bookingRequest.getSelectedServices()) {
                     if (service.isSelected()) {
                         serviceStmt.setInt(1, bookingId);
                         serviceStmt.setInt(2, service.getServiceId());
@@ -42,13 +51,11 @@ public class BookingDAO {
                         serviceStmt.addBatch();
                     }
                 }
-
-     
                 serviceStmt.executeBatch();
             }
-
         } catch (Exception e) {
             e.printStackTrace();
+            throw new RuntimeException("Error booking room: " + e.getMessage());
         }
     }
 }

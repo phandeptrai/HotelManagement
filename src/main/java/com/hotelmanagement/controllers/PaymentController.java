@@ -25,11 +25,27 @@ public class PaymentController {
 		String vnp_ResponseCode = request.getParameter("vnp_ResponseCode");
 
 		if ("00".equals(vnp_ResponseCode)) {
-			 BookingRequest bookingRequest = (BookingRequest) session.getAttribute("bookingRequest");
-            if (bookingRequest != null) {
-                bookingService.bookRoom(bookingRequest); 
-            }
-			model.addAttribute("message", "Thanh toán thành công. Mã giao dịch: " + vnp_TxnRef);
+			BookingRequest bookingRequest = (BookingRequest) session.getAttribute("bookingRequest");
+			if (bookingRequest != null) {
+				try {
+					// Đảm bảo tổng tiền đã được tính đúng trước khi lưu
+					if (bookingRequest.getTotalPrice() <= 0) {
+						model.addAttribute("message", "Lỗi: Tổng tiền không hợp lệ");
+						return "paymentResult";
+					}
+					
+					bookingService.bookRoom(bookingRequest);
+					// Clear the booking request from session after successful booking
+					session.removeAttribute("bookingRequest");
+					model.addAttribute("message", "Thanh toán thành công. Mã giao dịch: " + vnp_TxnRef);
+				} catch (IllegalArgumentException e) {
+					model.addAttribute("message", "Lỗi khi đặt phòng: " + e.getMessage());
+				} catch (Exception e) {
+					model.addAttribute("message", "Lỗi không xác định khi đặt phòng. Vui lòng liên hệ hỗ trợ.");
+				}
+			} else {
+				model.addAttribute("message", "Không tìm thấy thông tin đặt phòng. Vui lòng thử lại.");
+			}
 		} else {
 			model.addAttribute("message", "Thanh toán thất bại. Mã lỗi: " + vnp_ResponseCode);
 		}

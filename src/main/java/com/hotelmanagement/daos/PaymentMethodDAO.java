@@ -7,19 +7,28 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sql.DataSource;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.hotelmanagement.entities.PaymentMethod;
-import com.hotelmanagement.utils.DatabaseConnection;
+
 
 @Repository
 public class PaymentMethodDAO {
-    
-    public List<PaymentMethod> getAllPaymentMethods() {
+	private final DataSource dataSource;
+	
+	@Autowired
+    public PaymentMethodDAO(DataSource dataSource) {
+		this.dataSource = dataSource;
+	}
+
+	public List<PaymentMethod> getAllPaymentMethods() {
         List<PaymentMethod> methods = new ArrayList<>();
         String sql = "SELECT * FROM paymentmethods";
         
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+        try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
             
@@ -38,7 +47,7 @@ public class PaymentMethodDAO {
     public PaymentMethod getPaymentMethodById(int id) {
         String sql = "SELECT * FROM paymentmethods WHERE paymentMethodID = ?";
         
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+        try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setInt(1, id);

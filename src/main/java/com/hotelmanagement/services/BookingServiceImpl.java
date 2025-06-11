@@ -2,27 +2,48 @@ package com.hotelmanagement.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.hotelmanagement.daos.BookingDAO;
 import com.hotelmanagement.dtos.BookingRequest;
+import com.hotelmanagement.room.models.Room;
+import com.hotelmanagement.room.models.enums.RoomStatus;
+import com.hotelmanagement.room.services.RoomService;
 
 @Service
 public class BookingServiceImpl implements BookingService {
 
 	@Autowired
-	private BookingDAO bookingRepository;
+	private BookingDAO bookingDAO;
+	
+	@Autowired
+	private RoomService roomService;
 
 	@Override
+	@Transactional
 	public void bookRoom(BookingRequest bookingRequest) {
 		// Validate booking request
 		validateBookingRequest(bookingRequest);
 		
-		// Save booking to database
-		bookingRepository.bookRoom(bookingRequest);
+
+		Room room = roomService.getRoomByID(bookingRequest.getRoomId());
+		if (room == null) {
+			throw new IllegalArgumentException("Room not found");
+		}
+		
+		if (room.getRoomStatus() != RoomStatus.AVAILABLE) {
+			throw new IllegalArgumentException("Room is not available for booking");
+		}
+		
+
+		bookingDAO.bookRoom(bookingRequest);
+		
+
+		roomService.updateRoomStatus(bookingRequest.getRoomId(), RoomStatus.BOOKED);
 	}
 
 	private void validateBookingRequest(BookingRequest bookingRequest) {
-		// Add any necessary validation logic here
+
 		if (bookingRequest.getCheckInDate() == null || bookingRequest.getCheckOutDate() == null) {
 			throw new IllegalArgumentException("Check-in and check-out dates are required");
 		}

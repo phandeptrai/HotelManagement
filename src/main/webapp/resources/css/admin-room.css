@@ -1,0 +1,57 @@
+@charset "UTF-8";
+
+/* === GENERAL === */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 20px;
+	margin-left: 240px;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* === TABLE === */
+table {
+    width: 90%;
+    margin: 0 auto;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #007bff;
+    color: white;
+}
+
+tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* === STATUS COLORS === */
+.status-AVAILABLE {
+    color: green;
+    font-weight: bold;
+}
+
+.status-BOOKED {
+    color: red;
+    font-weight: bold;
+}
+
+.status-MAINTENANCE {
+    color: orange;
+    font-weight: bold;
+}
+

@@ -1,3 +1,4 @@
+
 package com.hotelmanagement.config;
 
 import org.springframework.context.annotation.Bean;
@@ -11,9 +12,9 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = "com.hotelmanagement.controllers")
+@ComponentScan(basePackages = { "com.hotelmanagement.controllers", "com.hotelmanagement.admin.controllers" })
 public class WebMvcConfig implements WebMvcConfigurer {
-	
+
 	@Bean
 	public ViewResolver viewResolver() {
 		InternalResourceViewResolver resolver = new InternalResourceViewResolver();
@@ -21,10 +22,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
 		resolver.setSuffix(".jsp");
 		return resolver;
 	}
+
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-		registry.addResourceHandler("/resources/**").addResourceLocations("/resource/");
+		registry.addResourceHandler("/resources/**").addResourceLocations("/resources/");
 	}
-	
-		
+
 }
