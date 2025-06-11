@@ -26,7 +26,7 @@ public class ServiceBookingDAO {
 					ServiceBookingResponse serviceBooking = new ServiceBookingResponse(
 							rs.getInt(1),
 							rs.getString(2),
-							rs.getDouble(3));
+							rs.getInt(3));
 					serviceBookings.add(serviceBooking);
 				}
 			}
@@ -36,4 +36,8 @@ public class ServiceBookingDAO {
 		
 		return serviceBookings;
 	}
+	
+
 }
+
+

@@ -12,23 +12,33 @@ import jakarta.validation.constraints.NotNull;
 
 public class BookingRequest {
 
+    @NotNull(message = "User ID không được để trống")
+    @Min(value = 1, message = "User ID không hợp lệ")
     private int userId;
 
+    @NotNull(message = "Room ID không được để trống")
+    @Min(value = 1, message = "Room ID không hợp lệ")
     private int roomId;
     
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @NotNull(message = "Ngày nhận phòng không được để trống")
+    @FutureOrPresent(message = "Ngày nhận phòng phải là ngày hiện tại hoặc tương lai")
     private LocalDate checkInDate;
     
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @FutureOrPresent(message = "Ngày nhận phòng phải là ngày hiện tại hoặc tương lai")
     @NotNull(message = "Ngày trả phòng không được để trống")
+    @FutureOrPresent(message = "Ngày trả phòng phải là ngày hiện tại hoặc tương lai")
     private LocalDate checkOutDate;
 
-    @Min(value = 1, message = "Vui lòng chọn phương thức thanh toán")
+    @NotNull(message = "Vui lòng chọn phương thức thanh toán")
+    @Min(value = 1, message = "Phương thức thanh toán không hợp lệ")
     private int paymentMethodID;
 
-    private int amount;
+    @NotNull(message = "Giá phòng không được để trống")
+    @Min(value = 0, message = "Giá phòng không hợp lệ")
+    private int roomPrice;
+    
+    private int totalPrice;
     
     private List<SelectedService> selectedServices = new ArrayList<>();
 	
@@ -81,12 +91,20 @@ public class BookingRequest {
 	public void setSelectedServices(List<SelectedService> selectedServices) {
 	    this.selectedServices = selectedServices;
 	}
-	public int getAmount() {
-		return amount;
+	public int getRoomPrice() {
+		return roomPrice;
 	}
-	public void setAmount(int amount) {
-		this.amount = amount;
+	public void setRoomPrice(int roomPrice) {
+		this.roomPrice = roomPrice;
 	}
+	public int getTotalPrice() {
+		return totalPrice;
+	}
+	public void setTotalPrice(int totalPrice) {
+		this.totalPrice = totalPrice;
+	}
+
+
 
 	
 	

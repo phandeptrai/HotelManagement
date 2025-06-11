@@ -2,8 +2,8 @@ package com.hotelmanagement.payment;
 
 import com.hotelmanagement.utils.VnpayUtils;
 import com.hotelmanagement.config.VnpayConfig;
+import com.hotelmanagement.dtos.PaymentRequest;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Component;
 
 import java.net.URLEncoder;
@@ -15,9 +15,9 @@ import java.util.*;
 public class VnpayPaymentStrategy implements PaymentStrategy {
 
     @Override
-    public String pay(HttpServletRequest req, HttpSession session, int amount) {
+    public String pay(HttpServletRequest req, PaymentRequest paymentRequest) {
         try {
-            amount = amount * 100; 
+            int amount = paymentRequest.getAmount() * 100; 
 
             String vnp_TxnRef = String.valueOf(System.currentTimeMillis());
             String vnp_OrderInfo = "Thanh toan dat phong";

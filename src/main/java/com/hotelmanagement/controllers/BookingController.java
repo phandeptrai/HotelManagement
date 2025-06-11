@@ -1,14 +1,15 @@
 package com.hotelmanagement.controllers;
 
-import com.hotelmanagement.command.BookingCommand;
-import com.hotelmanagement.command.BookingCommandFactory;
 import com.hotelmanagement.dtos.BookingRequest;
+import com.hotelmanagement.dtos.PaymentRequest;
+import com.hotelmanagement.dtos.SelectedService;
 import com.hotelmanagement.dtos.ServiceBookingResponse;
 import com.hotelmanagement.payment.PaymentStrategy;
+import com.hotelmanagement.services.BookingService;
 import com.hotelmanagement.services.IServiceBooking;
+import com.hotelmanagement.services.PaymentMethodService;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,71 +17,87 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 @Controller
 @RequestMapping("/booking")
 public class BookingController {
 
-	private final BookingCommandFactory commandFactory;
 	private final ApplicationContext context;
 	private final IServiceBooking services;
-
-	private static final Map<Integer, String> paymentMethodMap = Map.of(1, "vnpay", 2, "cash");
+	private final BookingService bookingService;
+	private final PaymentMethodService paymentMethodService;
 
 	@Autowired
-	public BookingController(BookingCommandFactory commandFactory, ApplicationContext context,
-			IServiceBooking services) {
-		this.commandFactory = commandFactory;
+	public BookingController(ApplicationContext context, IServiceBooking services, 
+			BookingService bookingService, PaymentMethodService paymentMethodService) {
 		this.context = context;
 		this.services = services;
+		this.bookingService = bookingService;
+		this.paymentMethodService = paymentMethodService;
 	}
 
 	@GetMapping("/getform")
-	public String getFormBooking(Model model) {
-		model.addAttribute("request", new BookingRequest());
+	public String getFormBooking(//@RequestParam(required = false) Integer roomId,
+//								@RequestParam(required = false) Integer roomPrice,
+								Model model) {
+		BookingRequest bookingRequest = new BookingRequest();
+//		if (roomId != null) {
+//			bookingRequest.setRoomId(roomId);
+//		}
+//		if (roomPrice != null) {
+//			bookingRequest.setRoomPrice(roomPrice);
+//		}
+		model.addAttribute("request", bookingRequest);
 		model.addAttribute("availableServices", services.getAllServices());
+		model.addAttribute("paymentMethods", paymentMethodService.getAllPaymentMethods());
 		return "createBooking";
 	}
 
-	@PostMapping("/action")
-	public String handleAction(@Valid @ModelAttribute BookingRequest request, BindingResult bindingResult,
-			@RequestParam("action") String action, Model model, HttpSession session,
-			HttpServletRequest servletRequest) {
+	@PostMapping("/bookroom")
+	public String handleAction(@Valid @ModelAttribute("request") BookingRequest request, 
+			BindingResult bindingResult, Model model, HttpServletRequest servletRequest) {
 
+		// Validate ngày check-in và check-out
+		if (request.getCheckInDate() != null && request.getCheckOutDate() != null) {
+			if (request.getCheckInDate().isAfter(request.getCheckOutDate())) {
+				bindingResult.addError(new FieldError("request", "checkOutDate", 
+					"Ngày trả phòng phải sau ngày nhận phòng"));
+			}
+		}
 
-		BookingCommand command = commandFactory.getCommand(action);
 		if (bindingResult.hasErrors()) {
-
-			List<ServiceBookingResponse> availableServices = services.getAllServices();
-			model.addAttribute("availableServices", availableServices);
-			model.addAttribute("request", request);
+			model.addAttribute("availableServices", services.getAllServices());
+			model.addAttribute("paymentMethods", paymentMethodService.getAllPaymentMethods());
 			return "createBooking";
-		}else if (command != null) {
-			command.execute(request);
-			session.setAttribute("bookingRequest", request);
-			session.setAttribute("amount", 100000); // mock amount
+		}
 
-			String strategyName = paymentMethodMap.get(request.getPaymentMethodID());
-			if (strategyName == null) {
-				model.addAttribute("message", "Phương thức thanh toán không hợp lệ.");
-				return "createBooking";
-			}
+		// Tính tổng tiền
+		int totalPrice = calculateTotalPrice(request);
+		request.setTotalPrice(totalPrice);
 
-			try {
-				PaymentStrategy strategy = context.getBean(strategyName, PaymentStrategy.class);
-				return strategy.pay(servletRequest, session, 100000);
-			} catch (Exception e) {
-				e.printStackTrace();
-				model.addAttribute("message", "Lỗi khi xử lý thanh toán.");
-				return "createBooking";
-			}
-		} else {
-			model.addAttribute("message", "Hành động không hợp lệ: " + action);
-			model.addAttribute("request", request);
+		// Lấy chiến lược thanh toán
+		String strategyName = paymentMethodService.getMethodNameById(request.getPaymentMethodID());
+		if (strategyName == null) {
+			model.addAttribute("message", "Phương thức thanh toán không hợp lệ.");
+			model.addAttribute("availableServices", services.getAllServices());
+			model.addAttribute("paymentMethods", paymentMethodService.getAllPaymentMethods());
+			return "createBooking";
+		}
+
+		try {
+			PaymentRequest paymentRequest = new PaymentRequest(request, totalPrice, strategyName);
+			PaymentStrategy strategy = context.getBean(strategyName, PaymentStrategy.class);
+			return strategy.pay(servletRequest, paymentRequest);
+		} catch (Exception e) {
+			e.printStackTrace();
+			model.addAttribute("message", "Lỗi khi xử lý thanh toán.");
+			model.addAttribute("availableServices", services.getAllServices());
+			model.addAttribute("paymentMethods", paymentMethodService.getAllPaymentMethods());
 			return "createBooking";
 		}
 	}
@@ -88,5 +105,17 @@ public class BookingController {
 	@GetMapping("/success")
 	public String bookingSuccess() {
 		return "paymentResult";
+	}
+
+	//  Tách logic tính tổng giá
+	private int calculateTotalPrice(BookingRequest request) {
+		int total = request.getRoomPrice();
+		for (SelectedService s : request.getSelectedServices()) {
+			if (s.isSelected()) {
+				int servicePrice = services.getPriceById(s.getServiceId());
+				total += servicePrice * s.getQuantity();
+			}
+		}
+		return total;
 	}
 }

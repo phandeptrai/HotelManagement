@@ -18,5 +18,15 @@ public class ServiceBookingImpl implements IServiceBooking{
 		
 		return serviceBookings.getAllServices();
 	}
+	@Override
+	public int getPriceById(int id) {
+	    return serviceBookings.getAllServices().stream()
+	            .filter(s -> s.getId() == id)
+	            .findFirst()
+	            .map(ServiceBookingResponse::getPrice) // trả về int
+	            .orElse(0); // OK nếu getPrice() trả về int
+	}
+
+
 
 }

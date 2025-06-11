@@ -3,12 +3,12 @@ package com.hotelmanagement.dtos;
 public class ServiceBookingResponse {
 	private int id;
 	private String name;
-	private double price;
+	private int price;
 
 	public ServiceBookingResponse() {
 	}
 
-	public ServiceBookingResponse(int id, String name, double price) {
+	public ServiceBookingResponse(int id, String name, int price) {
 		this.id = id;
 		this.name = name;
 		this.price = price;
@@ -31,11 +31,11 @@ public class ServiceBookingResponse {
 		this.name = name;
 	}
 
-	public double getPrice() {
+	public int getPrice() {
 		return price;
 	}
 
-	public void setPrice(double price) {
+	public void setPrice(int price) {
 		this.price = price;
 	}
 }

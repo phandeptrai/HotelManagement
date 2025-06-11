@@ -1,8 +1,8 @@
 package com.hotelmanagement.payment;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
+import com.hotelmanagement.dtos.PaymentRequest;
 
 public interface PaymentStrategy {
-    String pay(HttpServletRequest request, HttpSession session, int amount);
+    String pay(HttpServletRequest request, PaymentRequest paymentRequest);
 }
