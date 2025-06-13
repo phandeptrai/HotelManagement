@@ -111,6 +111,17 @@ public class User implements UserDetails {
 	}
 
 	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		if (role == null) {
+			System.out.println("Warning: User " + username + " has no role assigned");
+			return Collections.emptyList();
+		}
+		String roleName = role.name();
+		System.out.println("User " + username + " has role: " + roleName);
+		return Collections.singletonList(new SimpleGrantedAuthority(roleName));
+	}
+
+	@Override
 	public boolean isAccountNonExpired() {
 		return true;
 	}
@@ -128,11 +139,6 @@ public class User implements UserDetails {
 	@Override
 	public boolean isEnabled() {
 		return true;
-	}
-
-	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return Collections.singletonList(new SimpleGrantedAuthority(role.name()));
 	}
 
 }

@@ -1,6 +1,6 @@
-
 package com.hotelmanagement.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,7 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import jakarta.servlet.http.Cookie;
 
@@ -23,44 +23,74 @@ import jakarta.servlet.http.Cookie;
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig {
-	private final JwtTokenFilter jwtRequestFilter;
-	
+	@Autowired
+	private JwtTokenFilter jwtTokenFilter;
+
 	private final UserDetailsService userDetailsService;
 
-	public WebSecurityConfig(JwtTokenFilter jwtRequestFilter, UserDetailsService userDetailsService) {
-	    this.jwtRequestFilter = jwtRequestFilter;
-	    this.userDetailsService = userDetailsService;
+	public WebSecurityConfig(UserDetailsService userDetailsService) {
+		this.userDetailsService = userDetailsService;
 	}
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		http.csrf(csrf -> csrf.disable())
-				.authorizeHttpRequests(auth -> auth
-						.requestMatchers("/admin/home").hasAuthority("ADMIN")
-						  .requestMatchers("/", "/login", "/register").permitAll()
-						.anyRequest().authenticated())
-				.formLogin(form -> form.loginPage("/login").defaultSuccessUrl("/", true).permitAll())
-				.logout(logout -> logout.logoutUrl("/logout").logoutSuccessUrl("/login?logout")
-						.addLogoutHandler((request, response, authentication) -> {
-							Cookie jwtCookie = new Cookie("jwt_token", null);
-							jwtCookie.setHttpOnly(true);
-							jwtCookie.setMaxAge(0);
-							jwtCookie.setPath("/");
-							response.addCookie(jwtCookie);
-						}).permitAll())        
-				.exceptionHandling(handler -> handler.accessDeniedPage("/403"))
-				.authenticationProvider(authenticationProvider())
-				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
-		http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+		http
+			.csrf(csrf -> csrf.disable())
+			.authorizeHttpRequests(auth -> auth
+				// Yêu cầu xác thực và ROLE_ADMIN cho tất cả các trang admin
+				.requestMatchers("/admin/**").hasRole("ADMIN")
+				// Cho phép truy cập các trang công khai
+				.requestMatchers("/", "/home", "/login", "/register", "/403", "/css/**", "/js/**", "/images/**", "/resources/**").permitAll()
+				// Yêu cầu xác thực cho các trang booking
+				.requestMatchers("/booking/**").authenticated()
+				// Tất cả các request khác yêu cầu xác thực
+				.anyRequest().authenticated()
+			)
+			.formLogin(form -> form
+				.loginPage("/login")
+				.loginProcessingUrl("/login")
+				.successHandler((request, response, authentication) -> {
+					// Kiểm tra role sau khi đăng nhập thành công
+					boolean isAdmin = authentication.getAuthorities().stream()
+							.anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+					
+					System.out.println("Login successful for user: " + authentication.getName());
+					System.out.println("User authorities: " + authentication.getAuthorities());
+					System.out.println("Is admin: " + isAdmin);
+					
+					if (isAdmin) {
+						response.sendRedirect("/admin/roommanagement");
+					} else {
+						response.sendRedirect("/home");
+					}
+				})
+				.failureHandler((request, response, exception) -> {
+					System.err.println("Login failed: " + exception.getMessage());
+					response.sendRedirect("/login?error=true");
+				})
+				.permitAll()
+			)
+			.logout(logout -> logout
+				.logoutUrl("/logout")
+				.logoutSuccessUrl("/home")
+				.deleteCookies("jwt_token")
+				.permitAll()
+			)
+			.exceptionHandling(exception -> exception
+				.accessDeniedPage("/403")
+			)
+			.sessionManagement(session -> session
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+			)
+			.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
+			.addFilterBefore(jwtTokenFilter, BasicAuthenticationFilter.class);
 
 		return http.build();
 	}
-	
 
 	@Bean
-	public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
-		return authConfig.getAuthenticationManager();
+	public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+		return config.getAuthenticationManager();
 	}
 
 	@Bean

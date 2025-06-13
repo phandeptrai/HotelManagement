@@ -1,4 +1,3 @@
-
 package com.hotelmanagement.services;
 
 import java.util.Date;
@@ -27,34 +26,40 @@ import io.jsonwebtoken.security.Keys;
 @Service
 public class JWTServiceImpl implements JWTService {
 	private JwtConfig jwtConfig;
-
 	private SecretKey secretKey;
 
 	@Autowired
 	public JWTServiceImpl(JwtConfig jwtConfig) {
 		this.jwtConfig = jwtConfig;
-
-		secretKey = Keys.hmacShaKeyFor(jwtConfig.getSecretKey().getBytes());
+		this.secretKey = Keys.hmacShaKeyFor(jwtConfig.getSecretKey().getBytes());
 	}
 
 	@Override
 	public String generateToken(UserDetails userDetails) {
-
-		List<String> authorities = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority)
+		List<String> authorities = userDetails.getAuthorities().stream()
+				.map(GrantedAuthority::getAuthority)
 				.collect(Collectors.toList());
 
 		Map<String, Object> claims = new HashMap<>();
 		claims.put("Authorities", authorities);
 		claims.put("userId", ((User) userDetails).getId());
 
-		return Jwts.builder().signWith(secretKey).claims(claims).subject(userDetails.getUsername())
+		return Jwts.builder()
+				.signWith(secretKey)
+				.claims(claims)
+				.subject(userDetails.getUsername())
 				.issuedAt(new Date(System.currentTimeMillis()))
-				.expiration(new Date(System.currentTimeMillis() + jwtConfig.getExpirationTime())).compact();
+				.expiration(new Date(System.currentTimeMillis() + jwtConfig.getExpirationTime()))
+				.compact();
 	}
 
 	@Override
 	public String extractUsernameFromToken(String token) {
-		Claims claims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
+		Claims claims = Jwts.parser()
+				.verifyWith(secretKey)
+				.build()
+				.parseSignedClaims(token)
+				.getPayload();
 
 		return claims.getSubject();
 	}
@@ -62,7 +67,10 @@ public class JWTServiceImpl implements JWTService {
 	@Override
 	public boolean validateToken(String token) {
 		try {
-			Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
+			Jwts.parser()
+				.verifyWith(secretKey)
+				.build()
+				.parseSignedClaims(token);
 			return true;
 		} catch (MalformedJwtException | ExpiredJwtException | UnsupportedJwtException | IllegalArgumentException ex) {
 			return false;
@@ -71,17 +79,14 @@ public class JWTServiceImpl implements JWTService {
 	
 	@Override
 	public List<String> extractAuthoritiesFromToken(String token) {
-		Claims claims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
+		Claims claims = Jwts.parser()
+				.verifyWith(secretKey)
+				.build()
+				.parseSignedClaims(token)
+				.getPayload();
 
-		List<?> rawAuthorities = claims.get("Authorities", List.class);
-
-		if (rawAuthorities == null) {
-			return List.of();
-		}
-
-		return rawAuthorities.stream()
-			    .map(Object::toString)
-			    .collect(Collectors.toList());
-
+		@SuppressWarnings("unchecked")
+		List<String> authorities = (List<String>) claims.get("Authorities");
+		return authorities != null ? authorities : List.of();
 	}
 }
