@@ -40,7 +40,7 @@ public class WebSecurityConfig {
 				// Yêu cầu xác thực và ROLE_ADMIN cho tất cả các trang admin
 				.requestMatchers("/admin/**").hasRole("ADMIN")
 				// Cho phép truy cập các trang công khai
-				.requestMatchers("/", "/home", "/login", "/register", "/403", "/css/**", "/js/**", "/images/**", "/resources/**").permitAll()
+				.requestMatchers("/", "/home", "/rooms/**", "/login", "/register", "/403", "/css/**", "/js/**", "/images/**", "/resources/**").permitAll()
 				// Yêu cầu xác thực cho các trang booking
 				.requestMatchers("/booking/**").authenticated()
 				// Tất cả các request khác yêu cầu xác thực
