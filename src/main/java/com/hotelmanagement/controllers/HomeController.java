@@ -19,4 +19,9 @@ public class HomeController {
 	public String loginForm() {
 		return "/login";
 	}
+	
+    @GetMapping("/403")
+    public String accessDenied() {
+        return "error/403";
+    }
 }

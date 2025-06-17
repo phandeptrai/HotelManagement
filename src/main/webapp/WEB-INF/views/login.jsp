@@ -47,16 +47,17 @@ h2 {
 	border-radius: 5px;
 	font-size: 16px;
 }
+
 .signup-link {
-    display: block;
-    margin-top: 20px; /* Khoảng cách đủ thoáng */
-    color: #28a745;
-    text-decoration: none;
-    font-weight: bold;
+	display: block;
+	margin-top: 20px; /* Khoảng cách đủ thoáng */
+	color: #28a745;
+	text-decoration: none;
+	font-weight: bold;
 }
 
 .signup-link:hover {
-    text-decoration: underline;
+	text-decoration: underline;
 }
 
 .btn-login {
@@ -104,7 +105,7 @@ h2 {
 <body>
 	<div class="login-container">
 		<h2>Login</h2>
-		<form onsubmit="login(event)">
+		<form action="/HotelManagement/auth/login" method="post">
 			<div class="input-group">
 				<label for="username">Username:</label> <input type="text"
 					id="username" name="username" required>
@@ -115,8 +116,10 @@ h2 {
 			</div>
 			<button type="submit" class="btn-login">Login</button>
 		</form>
-		
-		<a class="signup-link" href="/HotelManagement/auth/signup">Don't have an account? Sign up here</a>
+
+
+		<a class="signup-link" href="/HotelManagement/auth/signup">Don't
+			have an account? Sign up here</a>
 	</div>
 </body>
 </html>

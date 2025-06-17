@@ -23,6 +23,7 @@ import com.hotelmanagement.dtos.LoginResponse;
 import com.hotelmanagement.dtos.SignUpRequest;
 import com.hotelmanagement.services.AuthService;
 import com.hotelmanagement.services.JWTService;
+import com.hotelmanagement.user.entities.User;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,7 +35,7 @@ public class AuthController {
 	private final AuthenticationManager authenticationManager;
 	private final JWTService jwtService;
 	private AuthService authService;
-	
+
 	@Autowired
 	public AuthController(AuthenticationManager authenticationManager, JWTService jwtService, AuthService authService) {
 		this.authenticationManager = authenticationManager;
@@ -74,26 +75,29 @@ public class AuthController {
 		}
 	}
 
-	@PostMapping("/login")
-	public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletRequest request, HttpServletResponse response) {
-		Authentication authentication = authenticationManager.authenticate(
-				new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-
-		UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-		String token = jwtService.generateToken(userDetails);
-
-		Cookie jwtCookie = new Cookie("jwt_token", token);
-		jwtCookie.setPath("/");
-		jwtCookie.setHttpOnly(true);
-		jwtCookie.setSecure(false);
-		jwtCookie.setMaxAge(24 * 60 * 60);
-		jwtCookie.setAttribute("SameSite", "Lax");
-		response.addCookie(jwtCookie);
-
-		request.getSession().setAttribute("loggedInUser", loginRequest.getUsername());
-
-		return ResponseEntity.ok().header("Location", "/home").body(new LoginResponse(token));
-	}
+	/*
+	 * @PostMapping("/login") public ResponseEntity<?> login(@ModelAttribute
+	 * LoginRequest loginRequest, HttpServletRequest request, HttpServletResponse
+	 * response) { Authentication authentication =
+	 * authenticationManager.authenticate( new
+	 * UsernamePasswordAuthenticationToken(loginRequest.getUsername(),
+	 * loginRequest.getPassword()));
+	 * 
+	 * UserDetails userDetails = (UserDetails) authentication.getPrincipal(); String
+	 * token = jwtService.generateToken(userDetails);
+	 * 
+	 * Cookie jwtCookie = new Cookie("jwt_token", token); jwtCookie.setPath("/");
+	 * jwtCookie.setHttpOnly(true); jwtCookie.setSecure(false);
+	 * jwtCookie.setMaxAge(24 * 60 * 60); jwtCookie.setAttribute("SameSite", "Lax");
+	 * response.addCookie(jwtCookie);
+	 * 
+	 * User user = (User) userDetails;
+	 * request.getSession().setAttribute("currentUser", user);
+	 * 
+	 * 
+	 * return ResponseEntity.ok().header("Location", "/home").body(new
+	 * LoginResponse(token)); }
+	 */
 
 	@GetMapping("/logout")
 	public String logout(HttpServletRequest request, HttpServletResponse response) {
@@ -105,5 +109,32 @@ public class AuthController {
 		response.addCookie(jwtCookie);
 		SecurityContextHolder.clearContext();
 		return "redirect:/auth/login";
+	}
+
+	@PostMapping("/login")
+	public String login(@ModelAttribute LoginRequest loginRequest, HttpServletRequest request,
+			HttpServletResponse response, RedirectAttributes redirectAttributes) {
+		try {
+			Authentication authentication = authenticationManager.authenticate(
+					new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+
+			UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+			String token = jwtService.generateToken(userDetails);
+
+			Cookie jwtCookie = new Cookie("jwt_token", token);
+			jwtCookie.setPath("/");
+			jwtCookie.setHttpOnly(true);
+			jwtCookie.setMaxAge(24 * 60 * 60);
+			response.addCookie(jwtCookie);
+
+			request.getSession().setAttribute("currentUser", userDetails);
+
+
+			return "redirect:/home";
+		} catch (Exception e) {
+			e.printStackTrace();
+			redirectAttributes.addFlashAttribute("message", "Đăng nhập thất bại");
+			return "redirect:/auth/login";
+		}
 	}
 }

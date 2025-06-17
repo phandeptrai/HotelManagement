@@ -129,9 +129,17 @@ keyframes pulse { 0% {
 
 
 
+
+
+
+
 %
 {
 transform
+
+
+
+
 
 
 
@@ -145,7 +153,15 @@ transform
 
 
 
+
+
+
+
 scale
+
+
+
+
 
 
 
@@ -157,7 +173,15 @@ scale
 
 
 
+
+
+
+
 1
+
+
+
+
 
 
 
@@ -169,7 +193,15 @@ scale
 
 
 
+
+
+
+
 )
+
+
+
+
 
 
 
@@ -183,9 +215,17 @@ scale
 
 
 
+
+
+
+
 %
 {
 transform
+
+
+
+
 
 
 
@@ -199,12 +239,24 @@ transform
 
 
 
+
+
+
+
 scale
 
 
 
 
+
+
+
+
 (
+
+
+
+
 
 
 
@@ -218,7 +270,15 @@ scale
 
 
 
+
+
+
+
 )
+
+
+
+
 
 
 
@@ -245,12 +305,13 @@ scale
 			</div>
 		</c:forEach>
 	</div>
-	<c:if test="${not empty sessionScope.loggedInUser}">
-		<a href="<%=request.getContextPath()%>/auth/logout"
+	<c:if test="${not empty sessionScope.currentUser}">
+		<a href="${pageContext.request.contextPath}/auth/logout"
 			class="btn btn-danger btn-sm btn-hover"> <i
 			class="bi bi-box-arrow-right"></i> Logout
 		</a>
 	</c:if>
+
 
 </body>
 </html>

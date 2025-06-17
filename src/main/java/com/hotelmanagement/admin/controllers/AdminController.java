@@ -3,7 +3,6 @@ package com.hotelmanagement.admin.controllers;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,7 +29,7 @@ import com.hotelmanagement.user.services.UserService;
 
 @Controller
 @RequestMapping("/admin")
-@PreAuthorize("hasAuthority('ROLE_ADMIN')")
+
 public class AdminController {
 
 	private CommandExecutor commandExecutor = new CommandExecutor();
@@ -49,7 +48,7 @@ public class AdminController {
 	// ==============================
 
 	@GetMapping("/roommanagement")
-	@PreAuthorize("hasAuthority('ROLE_ADMIN')")
+
 	public String showAllRoom(Model model) {
 		List<Room> rooms = roomService.getAllRoom();
 		model.addAttribute("rooms", rooms);
@@ -57,7 +56,7 @@ public class AdminController {
 	}
 
 	@GetMapping("/room/add")
-	@PreAuthorize("hasAuthority('ROLE_ADMIN')")
+
 	public String showAddForm(Model model) {
 
 		model.addAttribute("roomTypes", roomService.getAllRoomTypes());
@@ -66,7 +65,7 @@ public class AdminController {
 	}
 
 	@PostMapping("/room/add")
-	@PreAuthorize("hasAuthority('ROLE_ADMIN')")
+
 	public String createRoom(@ModelAttribute RoomFormDTO dto) {
 
 		AdminCommand command = new AddRoomCommand(roomService, dto);
@@ -75,7 +74,6 @@ public class AdminController {
 	}
 
 	@GetMapping("/room/edit")
-	@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 	public String showEditForm(@RequestParam("id") int roomID, Model model) {
 
 		Room room = roomService.getRoomByID(roomID);
@@ -98,7 +96,6 @@ public class AdminController {
 	}
 
 	@PostMapping("/room/edit")
-	@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 	public String updateRoom(@ModelAttribute RoomFormDTO room) {
 
 		AdminCommand command = new EditRoomCommand(roomService, room);
@@ -107,7 +104,6 @@ public class AdminController {
 	}
 
 	@GetMapping("/room/lock")
-	@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 	public String lockRoom(@RequestParam("id") int roomID) {
 
 		AdminCommand command = new LockRoomCommand(roomService, roomID);
@@ -120,7 +116,6 @@ public class AdminController {
 	// ==============================
 
 	@GetMapping("/user/usermanagement")
-	@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 	public String showAllUsers(Model model) {
 		List<User> users = userService.getAllUser();
 		model.addAttribute("users", users);
@@ -128,23 +123,13 @@ public class AdminController {
 	}
 
 	@GetMapping("/deleteUserById")
-	@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 	public String deleteUserById(@RequestParam("username") String username) {
 		userService.deleteUserById(username);
 		return "redirect:/admin/user/usermanagement";
 	}
 
-	/*
-	 * @GetMapping("/user/edit")
-	 * 
-	 * @PreAuthorize("hasAuthority('ROLE_ADMIN')") public String
-	 * showEditUserForm(@RequestParam("username") String username, Model model) {
-	 * User user = userService.findByUsername(username); if(user == null) { return
-	 * "redirect:/admin/user/usermanagement"; } model.addAttribute("user", user);
-	 * model.addAttribute("roles", UserRole.values()); return "admin/user/edit"; }
-	 */
+
 	@GetMapping("/user/edit")
-	@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 	public String showEditUserForm(@RequestParam("username") String username, Model model) {
 		User user = userService.findByUsername(username);
 		if (user == null) {
@@ -165,7 +150,6 @@ public class AdminController {
 	}
 
 	@PostMapping("/user/edit")
-	@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 	public String updateUser(@ModelAttribute("user") UserFormDTO dto) {
 	    AdminCommand command = new EditUserCommand(userService, dto, passwordEncoder);
 	    commandExecutor.execute(command);
