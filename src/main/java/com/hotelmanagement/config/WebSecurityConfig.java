@@ -17,8 +17,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
-import jakarta.servlet.http.Cookie;
-
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
@@ -40,11 +38,22 @@ public class WebSecurityConfig {
 				// Yêu cầu xác thực và ROLE_ADMIN cho tất cả các trang admin
 				.requestMatchers("/HotelManagement/admin/**").hasRole("ADMIN")
 				// Cho phép truy cập các trang công khai
-				.requestMatchers("/HotelManagement/", "/HotelManagement/home", "/HotelManagement/login", "/HotelManagement/register", 
-					"/HotelManagement/403", "/HotelManagement/css/**", "/HotelManagement/js/**", 
-					"/HotelManagement/images/**", "/HotelManagement/resources/**").permitAll()
+				.requestMatchers(
+					"/HotelManagement/", 
+					"/HotelManagement/home", 
+					"/HotelManagement/login", 
+					"/HotelManagement/register", 
+					"/HotelManagement/403", 
+					"/HotelManagement/css/**", 
+					"/HotelManagement/js/**", 
+					"/HotelManagement/images/**", 
+					"/HotelManagement/resources/**"
+				).permitAll()
 				// Yêu cầu xác thực cho các trang booking và booking-history
-				.requestMatchers("/HotelManagement/booking/**", "/HotelManagement/booking-history/**").authenticated()
+				.requestMatchers(
+					"/HotelManagement/booking/**", 
+					"/HotelManagement/booking-history/**"
+				).authenticated()
 				// Tất cả các request khác yêu cầu xác thực
 				.anyRequest().authenticated()
 			)
@@ -55,11 +64,11 @@ public class WebSecurityConfig {
 					// Kiểm tra role sau khi đăng nhập thành công
 					boolean isAdmin = authentication.getAuthorities().stream()
 							.anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
-					
+
 					System.out.println("Login successful for user: " + authentication.getName());
 					System.out.println("User authorities: " + authentication.getAuthorities());
 					System.out.println("Is admin: " + isAdmin);
-					
+
 					if (isAdmin) {
 						response.sendRedirect("/HotelManagement/admin/roommanagement");
 					} else {

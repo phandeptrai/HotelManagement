@@ -1,4 +1,3 @@
-
 package com.hotelmanagement.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,16 +61,16 @@ public class AuthController {
 	public String handleSignUp(@ModelAttribute SignUpRequest signUpRequestDTO, RedirectAttributes redirectAttributes) {
 		try {
 			authService.signUp(signUpRequestDTO);
-			redirectAttributes.addFlashAttribute("message", "User registered successfully!");
+			redirectAttributes.addFlashAttribute("message", "Đăng ký thành công! Vui lòng đăng nhập.");
 			return "redirect:/auth/login";
 		} catch (ResponseStatusException ex) {
 			ex.printStackTrace();
-			redirectAttributes.addFlashAttribute("message", ex.getReason());
-			return "redirect:/auth/sign-up";
+			redirectAttributes.addFlashAttribute("error", ex.getReason());
+			return "redirect:/auth/signup";
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			redirectAttributes.addFlashAttribute("message", "Internal server error");
-			return "redirect:/auth/sign-up";
+			redirectAttributes.addFlashAttribute("error", "Lỗi hệ thống! Vui lòng thử lại sau.");
+			return "redirect:/auth/signup";
 		}
 	}
 
@@ -110,7 +109,7 @@ public class AuthController {
 			return "redirect:/home";
 		} catch (Exception e) {
 			e.printStackTrace();
-			redirectAttributes.addFlashAttribute("message", "Đăng nhập thất bại");
+			redirectAttributes.addFlashAttribute("error", "Tên đăng nhập hoặc mật khẩu không đúng!");
 			return "redirect:/auth/login";
 		}
 	}

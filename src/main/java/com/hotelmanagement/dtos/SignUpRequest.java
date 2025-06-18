@@ -2,9 +2,8 @@ package com.hotelmanagement.dtos;
 
 public class SignUpRequest {
 	private String username;
-
 	private String password;
-	
+	private String confirmPassword;
 	private String role;
 	
 	public SignUpRequest() {}
@@ -37,5 +36,13 @@ public class SignUpRequest {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+	
+	public String getConfirmPassword() {
+		return confirmPassword;
+	}
+
+	public void setConfirmPassword(String confirmPassword) {
+		this.confirmPassword = confirmPassword;
 	}
 }
