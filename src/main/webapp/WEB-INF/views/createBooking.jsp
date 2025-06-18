@@ -3,299 +3,306 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <html>
 <head>
-	<title>Đặt Phòng</title>
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-	<style>
-		:root {
-			--primary-color: #4e73df;
-			--secondary-color: #1cc88a;
-			--accent-color: #f6c23e;
-			--danger-color: #e74a3b;
-			--dark-color: #5a5c69;
-			--light-color: #f8f9fc;
-		}
+<title>Đặt Phòng</title>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+	rel="stylesheet" />
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<style>
+:root {
+	--primary-color: #4e73df;
+	--secondary-color: #1cc88a;
+	--accent-color: #f6c23e;
+	--danger-color: #e74a3b;
+	--dark-color: #5a5c69;
+	--light-color: #f8f9fc;
+}
 
-		body {
-			background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-			min-height: 100vh;
-		}
+body {
+	background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+	min-height: 100vh;
+}
 
-		.booking-container {
-			max-width: 1100px;
-			margin: 2rem auto;
-			padding: 2rem;
-			background: white;
-			border-radius: 20px;
-			box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-		}
+.booking-container {
+	max-width: 1100px;
+	margin: 2rem auto;
+	padding: 2rem;
+	background: white;
+	border-radius: 20px;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
 
-		.booking-header {
-			text-align: center;
-			margin-bottom: 2rem;
-			padding: 1rem;
-			background: linear-gradient(135deg, var(--primary-color) 0%, #224abe 100%);
-			border-radius: 15px;
-			color: white;
-		}
+.booking-header {
+	text-align: center;
+	margin-bottom: 2rem;
+	padding: 1rem;
+	background: linear-gradient(135deg, var(--primary-color) 0%, #224abe
+		100%);
+	border-radius: 15px;
+	color: white;
+}
 
-		.booking-header h2 {
-			margin: 0;
-			font-size: 2rem;
-			font-weight: 600;
-		}
+.booking-header h2 {
+	margin: 0;
+	font-size: 2rem;
+	font-weight: 600;
+}
 
-		.booking-header p {
-			margin: 0.5rem 0 0;
-			opacity: 0.9;
-		}
+.booking-header p {
+	margin: 0.5rem 0 0;
+	opacity: 0.9;
+}
 
-		.form-section {
-			background: white;
-			padding: 1.5rem;
-			border-radius: 15px;
-			margin-bottom: 1.5rem;
-			border: 1px solid #e3e6f0;
-			box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-		}
+.form-section {
+	background: white;
+	padding: 1.5rem;
+	border-radius: 15px;
+	margin-bottom: 1.5rem;
+	border: 1px solid #e3e6f0;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
 
-		.form-section h4 {
-			color: var(--primary-color);
-			margin-bottom: 1.5rem;
-			padding-bottom: 0.5rem;
-			border-bottom: 2px solid var(--primary-color);
-			font-size: 1.2rem;
-		}
+.form-section h4 {
+	color: var(--primary-color);
+	margin-bottom: 1.5rem;
+	padding-bottom: 0.5rem;
+	border-bottom: 2px solid var(--primary-color);
+	font-size: 1.2rem;
+}
 
-		.form-label {
-			font-weight: 500;
-			color: var(--dark-color);
-			font-size: 0.9rem;
-			margin-bottom: 0.3rem;
-		}
+.form-label {
+	font-weight: 500;
+	color: var(--dark-color);
+	font-size: 0.9rem;
+	margin-bottom: 0.3rem;
+}
 
-		.form-control {
-			border-radius: 8px;
-			padding: 0.5rem 0.75rem;
-			border: 1px solid #d1d3e2;
-			font-size: 0.9rem;
-			height: auto;
-		}
+.form-control {
+	border-radius: 8px;
+	padding: 0.5rem 0.75rem;
+	border: 1px solid #d1d3e2;
+	font-size: 0.9rem;
+	height: auto;
+}
 
-		.form-control:focus {
-			border-color: var(--primary-color);
-			box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.15);
-		}
+.form-control:focus {
+	border-color: var(--primary-color);
+	box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.15);
+}
 
-		.error-message {
-			color: var(--danger-color);
-			font-size: 0.8rem;
-			margin-top: 0.25rem;
-		}
+.error-message {
+	color: var(--danger-color);
+	font-size: 0.8rem;
+	margin-top: 0.25rem;
+}
 
-		.service-table {
-			margin-top: 1rem;
-			font-size: 0.9rem;
-		}
+.service-table {
+	margin-top: 1rem;
+	font-size: 0.9rem;
+}
 
-		.service-table th {
-			background-color: var(--light-color);
-			color: var(--dark-color);
-			font-weight: 600;
-			padding: 0.75rem;
-		}
+.service-table th {
+	background-color: var(--light-color);
+	color: var(--dark-color);
+	font-weight: 600;
+	padding: 0.75rem;
+}
 
-		.service-table td {
-			padding: 0.75rem;
-			vertical-align: middle;
-		}
+.service-table td {
+	padding: 0.75rem;
+	vertical-align: middle;
+}
 
-		.btn-primary {
-			background: linear-gradient(135deg, var(--primary-color) 0%, #224abe 100%);
-			border: none;
-			padding: 0.6rem 2rem;
-			font-weight: 500;
-			border-radius: 8px;
-			font-size: 0.95rem;
-			transition: all 0.3s ease;
-		}
+.btn-primary {
+	background: linear-gradient(135deg, var(--primary-color) 0%, #224abe
+		100%);
+	border: none;
+	padding: 0.6rem 2rem;
+	font-weight: 500;
+	border-radius: 8px;
+	font-size: 0.95rem;
+	transition: all 0.3s ease;
+}
 
-		.btn-primary:hover {
-			transform: translateY(-2px);
-			box-shadow: 0 5px 15px rgba(78, 115, 223, 0.3);
-		}
+.btn-primary:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 5px 15px rgba(78, 115, 223, 0.3);
+}
 
-		.alert {
-			border-radius: 10px;
-			margin-bottom: 1.5rem;
-			font-size: 0.9rem;
-		}
+.alert {
+	border-radius: 10px;
+	margin-bottom: 1.5rem;
+	font-size: 0.9rem;
+}
 
-		.alert-danger {
-			background-color: #fdf3f2;
-			border-color: var(--danger-color);
-			color: var(--danger-color);
-		}
+.alert-danger {
+	background-color: #fdf3f2;
+	border-color: var(--danger-color);
+	color: var(--danger-color);
+}
 
-		.price-display {
-			font-size: 1.1rem;
-			color: var(--dark-color);
-			font-weight: 500;
-		}
+.price-display {
+	font-size: 1.1rem;
+	color: var(--dark-color);
+	font-weight: 500;
+}
 
-		.service-checkbox {
-			width: 18px;
-			height: 18px;
-			accent-color: var(--primary-color);
-		}
+.service-checkbox {
+	width: 18px;
+	height: 18px;
+	accent-color: var(--primary-color);
+}
 
-		.quantity-input {
-			width: 70px;
-			text-align: center;
-			padding: 0.3rem;
-		}
+.quantity-input {
+	width: 70px;
+	text-align: center;
+	padding: 0.3rem;
+}
 
-		.input-group-text {
-			background-color: var(--light-color);
-			border-color: #d1d3e2;
-			color: var(--dark-color);
-			font-size: 0.9rem;
-		}
+.input-group-text {
+	background-color: var(--light-color);
+	border-color: #d1d3e2;
+	color: var(--dark-color);
+	font-size: 0.9rem;
+}
 
-		.table-hover tbody tr:hover {
-			background-color: rgba(78, 115, 223, 0.05);
-		}
+.table-hover tbody tr:hover {
+	background-color: rgba(78, 115, 223, 0.05);
+}
 
-		.form-select {
-			font-size: 0.9rem;
-			padding: 0.5rem 0.75rem;
-			height: auto;
-		}
+.form-select {
+	font-size: 0.9rem;
+	padding: 0.5rem 0.75rem;
+	height: auto;
+}
 
-		.icon-color {
-			color: var(--primary-color);
-		}
+.icon-color {
+	color: var(--primary-color);
+}
 
-		.section-icon {
-			margin-right: 0.5rem;
-			color: var(--primary-color);
-		}
+.section-icon {
+	margin-right: 0.5rem;
+	color: var(--primary-color);
+}
 
-		.form-section:nth-child(2) h4 {
-			color: var(--secondary-color);
-			border-bottom-color: var(--secondary-color);
-		}
+.form-section:nth-child(2) h4 {
+	color: var(--secondary-color);
+	border-bottom-color: var(--secondary-color);
+}
 
-		.form-section:nth-child(3) h4 {
-			color: var(--accent-color);
-			border-bottom-color: var(--accent-color);
-		}
+.form-section:nth-child(3) h4 {
+	color: var(--accent-color);
+	border-bottom-color: var(--accent-color);
+}
 
-		.service-card {
-			background: white;
-			border: 1px solid #e3e6f0;
-			border-radius: 10px;
-			padding: 1rem;
-			height: 100%;
-			transition: all 0.3s ease;
-		}
+.service-card {
+	background: white;
+	border: 1px solid #e3e6f0;
+	border-radius: 10px;
+	padding: 1rem;
+	height: 100%;
+	transition: all 0.3s ease;
+}
 
-		.service-card:hover {
-			transform: translateY(-5px);
-			box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-		}
+.service-card:hover {
+	transform: translateY(-5px);
+	box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
 
-		.service-header {
-			margin-bottom: 1rem;
-			padding-bottom: 0.5rem;
-			border-bottom: 1px solid #e3e6f0;
-		}
+.service-header {
+	margin-bottom: 1rem;
+	padding-bottom: 0.5rem;
+	border-bottom: 1px solid #e3e6f0;
+}
 
-		.service-title {
-			color: var(--dark-color);
-			font-size: 1.1rem;
-			margin: 0;
-			font-weight: 600;
-		}
+.service-title {
+	color: var(--dark-color);
+	font-size: 1.1rem;
+	margin: 0;
+	font-weight: 600;
+}
 
-		.service-price {
-			color: var(--primary-color);
-			font-weight: 600;
-			font-size: 0.9rem;
-		}
+.service-price {
+	color: var(--primary-color);
+	font-weight: 600;
+	font-size: 0.9rem;
+}
 
-		.service-body {
-			padding: 0.5rem 0;
-		}
+.service-body {
+	padding: 0.5rem 0;
+}
 
-		.quantity-control {
-			margin-top: 1rem;
-		}
+.quantity-control {
+	margin-top: 1rem;
+}
 
-		.quantity-btn {
-			width: 30px;
-			height: 30px;
-			padding: 0;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			font-size: 1.2rem;
-			color: var(--primary-color);
-			border-color: #d1d3e2;
-		}
+.quantity-btn {
+	width: 30px;
+	height: 30px;
+	padding: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 1.2rem;
+	color: var(--primary-color);
+	border-color: #d1d3e2;
+}
 
-		.quantity-btn:hover {
-			background-color: var(--primary-color);
-			color: white;
-		}
+.quantity-btn:hover {
+	background-color: var(--primary-color);
+	color: white;
+}
 
-		.quantity-input {
-			text-align: center;
-			border-left: 0;
-			border-right: 0;
-			width: 60px;
-		}
+.quantity-input {
+	text-align: center;
+	border-left: 0;
+	border-right: 0;
+	width: 60px;
+}
 
-		.price-summary {
-			background: var(--light-color);
-			padding: 1.5rem;
-			border-radius: 10px;
-			margin-top: 1rem;
-			border: 1px solid #e3e6f0;
-		}
+.price-summary {
+	background: var(--light-color);
+	padding: 1.5rem;
+	border-radius: 10px;
+	margin-top: 1rem;
+	border: 1px solid #e3e6f0;
+}
 
-		.price-item {
-			display: flex;
-			justify-content: space-between;
-			margin-bottom: 1rem;
-			padding-bottom: 0.5rem;
-			border-bottom: 1px dashed #d1d3e2;
-		}
+.price-item {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 1rem;
+	padding-bottom: 0.5rem;
+	border-bottom: 1px dashed #d1d3e2;
+}
 
-		.price-item:last-child {
-			border-bottom: none;
-			margin-bottom: 0;
-			padding-bottom: 0;
-		}
+.price-item:last-child {
+	border-bottom: none;
+	margin-bottom: 0;
+	padding-bottom: 0;
+}
 
-		.price-item.total {
-			font-size: 1.2rem;
-			font-weight: 600;
-			color: var(--primary-color);
-			margin-top: 1rem;
-			padding-top: 1rem;
-			border-top: 2px solid var(--primary-color);
-		}
+.price-item.total {
+	font-size: 1.2rem;
+	font-weight: 600;
+	color: var(--primary-color);
+	margin-top: 1rem;
+	padding-top: 1rem;
+	border-top: 2px solid var(--primary-color);
+}
 
-		.price-value {
-			font-weight: 500;
-		}
-	</style>
+.price-value {
+	font-weight: 500;
+}
+</style>
 </head>
 <body>
 	<div class="booking-container">
 		<div class="booking-header">
-			<h2><i class="bi bi-calendar-check"></i> Đặt Phòng Khách Sạn</h2>
+			<h2>
+				<i class="bi bi-calendar-check"></i> Đặt Phòng Khách Sạn
+			</h2>
 			<p class="text-white">Vui lòng điền đầy đủ thông tin để đặt phòng</p>
 		</div>
 
@@ -305,41 +312,53 @@
 			</div>
 		</c:if>
 
-		<form:form modelAttribute="request" action="${pageContext.request.contextPath}/booking/bookroom" method="post" cssClass="needs-validation">
+		<form:form modelAttribute="request"
+			action="${pageContext.request.contextPath}/booking/bookroom"
+			method="post" cssClass="needs-validation">
 			<div class="row">
 				<!-- Bên trái: Thông tin đặt phòng và dịch vụ -->
 				<div class="col-md-7">
 					<!-- Thông tin đặt phòng -->
 					<div class="form-section">
-						<h4><i class="bi bi-info-circle section-icon"></i> Thông tin đặt phòng</h4>
-						
+						<h4>
+							<i class="bi bi-info-circle section-icon"></i> Thông tin đặt
+							phòng
+						</h4>
+
+						<form:hidden path="userId" />
 						<div class="mb-3">
-							<label class="form-label">User ID:</label>
-							<form:input path="userId" cssClass="form-control" placeholder="Nhập ID người dùng" />
-							<form:errors path="userId" cssClass="error-message" />
+							<label class="form-label">Tên khách hàng:</label> <input
+								type="text" class="form-control" value="${user.fullName}"
+								disabled="true" />
 						</div>
+
 
 						<div class="mb-3">
 							<label class="form-label">Room ID:</label>
-							<form:input path="roomId" cssClass="form-control" placeholder="Nhập ID phòng" />
+							<form:input path="roomId" cssClass="form-control"
+								placeholder="Nhập ID phòng" />
 							<form:errors path="roomId" cssClass="error-message" />
 						</div>
 
 						<div class="mb-3">
 							<label class="form-label">Ngày nhận phòng:</label>
-							<form:input path="checkInDate" type="date" cssClass="form-control" id="checkInDate" onchange="calculateTotalDays()" />
+							<form:input path="checkInDate" type="date"
+								cssClass="form-control" id="checkInDate"
+								onchange="calculateTotalDays()" />
 							<form:errors path="checkInDate" cssClass="error-message" />
 						</div>
 
 						<div class="mb-3">
 							<label class="form-label">Ngày trả phòng:</label>
-							<form:input path="checkOutDate" type="date" cssClass="form-control" id="checkOutDate" onchange="calculateTotalDays()" />
+							<form:input path="checkOutDate" type="date"
+								cssClass="form-control" id="checkOutDate"
+								onchange="calculateTotalDays()" />
 							<form:errors path="checkOutDate" cssClass="error-message" />
 						</div>
 
 						<div class="mb-3">
-							<label class="form-label">Số ngày đặt phòng:</label>
-							<input type="text" class="form-control" id="totalDays" readonly />
+							<label class="form-label">Số ngày đặt phòng:</label> <input
+								type="text" class="form-control" id="totalDays" readonly />
 						</div>
 
 						<!-- Hidden inputs cho giá phòng và tổng tiền -->
@@ -349,7 +368,9 @@
 
 					<!-- Dịch vụ đi kèm -->
 					<div class="form-section">
-						<h4><i class="bi bi-list-check section-icon"></i> Dịch vụ đi kèm</h4>
+						<h4>
+							<i class="bi bi-list-check section-icon"></i> Dịch vụ đi kèm
+						</h4>
 						<div class="table-responsive">
 							<table class="table table-hover">
 								<thead>
@@ -361,29 +382,36 @@
 									</tr>
 								</thead>
 								<tbody>
-									<c:forEach items="${availableServices}" var="service" varStatus="status">
+									<c:forEach items="${availableServices}" var="service"
+										varStatus="status">
 										<tr>
 											<td>${service.name}</td>
-											<td>${service.price} VNĐ</td>
+											<td>${service.price}VNĐ</td>
 											<td>
 												<div class="form-check">
-													<form:checkbox path="selectedServices[${status.index}].selected" 
-																 cssClass="form-check-input service-checkbox" 
-																 id="service-${status.index}" />
-													<form:hidden path="selectedServices[${status.index}].serviceId" 
-															   value="${service.id}" />
+													<form:checkbox
+														path="selectedServices[${status.index}].selected"
+														cssClass="form-check-input service-checkbox"
+														id="service-${status.index}" />
+													<form:hidden
+														path="selectedServices[${status.index}].serviceId"
+														value="${service.id}" />
 												</div>
 											</td>
 											<td>
-												<div class="input-group input-group-sm" style="width: 120px;">
-													<button type="button" class="btn btn-outline-secondary btn-sm quantity-btn" 
-															onclick="decreaseQuantity(${status.index})">-</button>
-													<form:input path="selectedServices[${status.index}].quantity" 
-															  type="number" min="0" 
-															  cssClass="form-control quantity-input" 
-															  id="quantity-${status.index}" />
-													<button type="button" class="btn btn-outline-secondary btn-sm quantity-btn" 
-															onclick="increaseQuantity(${status.index})">+</button>
+												<div class="input-group input-group-sm"
+													style="width: 120px;">
+													<button type="button"
+														class="btn btn-outline-secondary btn-sm quantity-btn"
+														onclick="decreaseQuantity(${status.index})">-</button>
+													<form:input
+														path="selectedServices[${status.index}].quantity"
+														type="number" min="0"
+														cssClass="form-control quantity-input"
+														id="quantity-${status.index}" />
+													<button type="button"
+														class="btn btn-outline-secondary btn-sm quantity-btn"
+														onclick="increaseQuantity(${status.index})">+</button>
 												</div>
 											</td>
 										</tr>
@@ -397,37 +425,42 @@
 				<!-- Bên phải: Thông tin thanh toán -->
 				<div class="col-md-5">
 					<div class="form-section sticky-top" style="top: 20px;">
-						<h4><i class="bi bi-credit-card section-icon"></i> Thông tin thanh toán</h4>
-						
+						<h4>
+							<i class="bi bi-credit-card section-icon"></i> Thông tin thanh
+							toán
+						</h4>
+
 						<div class="mb-4">
 							<label class="form-label">Phương thức thanh toán:</label>
 							<form:select path="paymentMethodID" cssClass="form-select">
 								<form:option value="0" label="-- Chọn phương thức thanh toán --" />
-								<form:options items="${paymentMethods}" itemValue="paymentMethodID" itemLabel="methodName" />
+								<form:options items="${paymentMethods}"
+									itemValue="paymentMethodID" itemLabel="methodName" />
 							</form:select>
 							<form:errors path="paymentMethodID" cssClass="error-message" />
 						</div>
 
 						<div class="price-summary">
 							<div class="price-item">
-								<span>Giá phòng/ngày:</span>
-								<span class="price-value" id="roomPricePerDay">${request.roomPrice != null ? request.roomPrice : 20000} VNĐ</span>
+								<span>Giá phòng/ngày:</span> <span class="price-value"
+									id="roomPricePerDay">${request.roomPrice != null ? request.roomPrice : 20000}
+									VNĐ</span>
 							</div>
 							<div class="price-item">
-								<span>Số ngày:</span>
-								<span class="price-value" id="displayDays">0 ngày</span>
+								<span>Số ngày:</span> <span class="price-value" id="displayDays">0
+									ngày</span>
 							</div>
 							<div class="price-item">
-								<span>Tổng tiền phòng:</span>
-								<span class="price-value" id="totalRoomPrice">0 VNĐ</span>
+								<span>Tổng tiền phòng:</span> <span class="price-value"
+									id="totalRoomPrice">0 VNĐ</span>
 							</div>
 							<div class="price-item">
-								<span>Dịch vụ đi kèm:</span>
-								<span class="price-value" id="services-total">0 VNĐ</span>
+								<span>Dịch vụ đi kèm:</span> <span class="price-value"
+									id="services-total">0 VNĐ</span>
 							</div>
 							<div class="price-item total">
-								<span>Tổng cộng:</span>
-								<span class="price-value" id="total-price">0 VNĐ</span>
+								<span>Tổng cộng:</span> <span class="price-value"
+									id="total-price">0 VNĐ</span>
 							</div>
 						</div>
 
@@ -442,7 +475,8 @@
 		</form:form>
 	</div>
 
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 	<script>
 		// Lấy giá phòng từ BookingRequest, nếu không có thì dùng giá mặc định
 		const ROOM_PRICE_PER_DAY = ${request.roomPrice != null ? request.roomPrice : 20000};

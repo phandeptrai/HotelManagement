@@ -10,7 +10,7 @@ import com.hotelmanagement.payment.PaymentStrategy;
 import com.hotelmanagement.services.BookingService;
 import com.hotelmanagement.services.IServiceBooking;
 import com.hotelmanagement.services.PaymentMethodService;
-import com.hotelmanagement.stub.User;
+
 import com.hotelmanagement.stub.dao.UserDAO;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,7 +24,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
-
+import com.hotelmanagement.user.entities.User;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -51,12 +51,17 @@ public class BookingController {
 	}
 
 	@GetMapping("/getform")
-	public String getFormBooking(Model model) {
+	public String getFormBooking(HttpSession session,Model model) {
+		 User user = (User) session.getAttribute("currentUser");
+		 
 		BookingRequest bookingRequest = new BookingRequest();
 		bookingRequest.setRoomPrice(20000);
+		bookingRequest.setUserId(user.getUserID());
+		model.addAttribute("user", user);
 		model.addAttribute("request", bookingRequest);
 		model.addAttribute("availableServices", services.getAllServices());
 		model.addAttribute("paymentMethods", paymentMethodService.getAllPaymentMethods());
+		System.err.println("User trong session: " + user);
 		return "createBooking";
 	}
 
@@ -114,8 +119,8 @@ public class BookingController {
 	}
 	
     @GetMapping("/history")
-    public String viewBookingHistory( Model model) {
-    	User user = userDAO.getStubUser();
+    public String viewBookingHistory(HttpSession session, Model model) {
+    	 User user = (User) session.getAttribute("currentUser");
         List<BookingResponse> bookings = bookingService.getBookingHistoryByUserId(user.getUserID());
         model.addAttribute("bookings", bookings);
         model.addAttribute("userId", user.getUserID());
