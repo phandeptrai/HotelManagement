@@ -26,6 +26,10 @@ public class ServiceBookingImpl implements IServiceBooking{
 	            .map(ServiceBookingResponse::getPrice) // trả về int
 	            .orElse(0); // OK nếu getPrice() trả về int
 	}
+	@Override
+	public List<ServiceBookingResponse> getServiceByBookingId(int bookingId) {
+		return serviceBookings.getServiceByBookingId(bookingId);
+	}
 
 
 

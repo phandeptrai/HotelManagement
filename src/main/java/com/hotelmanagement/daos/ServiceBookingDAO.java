@@ -46,7 +46,30 @@ public class ServiceBookingDAO {
 		
 		return serviceBookings;
 	}
-	
+	public List<ServiceBookingResponse> getServiceByBookingId(int bookingID){
+		List<ServiceBookingResponse> serviceBookings = new ArrayList<ServiceBookingResponse>();
+		String sql = "SELECT services.serviceName,services.servicePrice,servicesbookings.quantity FROM servicebookings JOIN roombookings ON "
+				+ "roombookings.bookingID = servicebookings.bookingID JOIN services ON "
+				+ "servicebookings.serviceID = services.serviceID "
+				+ "WHERE servicebookings.bookingID = ?";
+		
+		try(Connection conn = dataSource.getConnection()){
+			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt.setInt(1, bookingID);
+			try(ResultSet rs = stmt.executeQuery()){
+				while (rs.next()) {
+					ServiceBookingResponse serviceBooking = new ServiceBookingResponse(
+							rs.getInt(1),
+							rs.getString(2),
+							rs.getInt(3));
+					serviceBookings.add(serviceBooking);
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return serviceBookings;
+	}
 
 }
 

@@ -38,17 +38,19 @@ public class WebSecurityConfig {
 			.csrf(csrf -> csrf.disable())
 			.authorizeHttpRequests(auth -> auth
 				// Yêu cầu xác thực và ROLE_ADMIN cho tất cả các trang admin
-				.requestMatchers("/admin/**").hasRole("ADMIN")
+				.requestMatchers("/HotelManagement/admin/**").hasRole("ADMIN")
 				// Cho phép truy cập các trang công khai
-				.requestMatchers("/", "/home", "/login", "/register", "/403", "/css/**", "/js/**", "/images/**", "/resources/**").permitAll()
-				// Yêu cầu xác thực cho các trang booking
-				.requestMatchers("/booking/**").authenticated()
+				.requestMatchers("/HotelManagement/", "/HotelManagement/home", "/HotelManagement/login", "/HotelManagement/register", 
+					"/HotelManagement/403", "/HotelManagement/css/**", "/HotelManagement/js/**", 
+					"/HotelManagement/images/**", "/HotelManagement/resources/**").permitAll()
+				// Yêu cầu xác thực cho các trang booking và booking-history
+				.requestMatchers("/HotelManagement/booking/**", "/HotelManagement/booking-history/**").authenticated()
 				// Tất cả các request khác yêu cầu xác thực
 				.anyRequest().authenticated()
 			)
 			.formLogin(form -> form
-				.loginPage("/login")
-				.loginProcessingUrl("/login")
+				.loginPage("/HotelManagement/login")
+				.loginProcessingUrl("/HotelManagement/login")
 				.successHandler((request, response, authentication) -> {
 					// Kiểm tra role sau khi đăng nhập thành công
 					boolean isAdmin = authentication.getAuthorities().stream()
@@ -59,25 +61,25 @@ public class WebSecurityConfig {
 					System.out.println("Is admin: " + isAdmin);
 					
 					if (isAdmin) {
-						response.sendRedirect("/admin/roommanagement");
+						response.sendRedirect("/HotelManagement/admin/roommanagement");
 					} else {
-						response.sendRedirect("/home");
+						response.sendRedirect("/HotelManagement/home");
 					}
 				})
 				.failureHandler((request, response, exception) -> {
 					System.err.println("Login failed: " + exception.getMessage());
-					response.sendRedirect("/login?error=true");
+					response.sendRedirect("/HotelManagement/login?error=true");
 				})
 				.permitAll()
 			)
 			.logout(logout -> logout
-				.logoutUrl("/logout")
-				.logoutSuccessUrl("/home")
+				.logoutUrl("/HotelManagement/logout")
+				.logoutSuccessUrl("/HotelManagement/home")
 				.deleteCookies("jwt_token")
 				.permitAll()
 			)
 			.exceptionHandling(exception -> exception
-				.accessDeniedPage("/403")
+				.accessDeniedPage("/HotelManagement/403")
 			)
 			.sessionManagement(session -> session
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)

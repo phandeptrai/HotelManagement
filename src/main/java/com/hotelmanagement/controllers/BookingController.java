@@ -1,6 +1,8 @@
 package com.hotelmanagement.controllers;
 
 import com.hotelmanagement.dtos.BookingRequest;
+import com.hotelmanagement.dtos.BookingResponse;
+import com.hotelmanagement.dtos.CancelBookingRequest;
 import com.hotelmanagement.dtos.PaymentRequest;
 import com.hotelmanagement.dtos.SelectedService;
 import com.hotelmanagement.dtos.ServiceBookingResponse;
@@ -8,6 +10,8 @@ import com.hotelmanagement.payment.PaymentStrategy;
 import com.hotelmanagement.services.BookingService;
 import com.hotelmanagement.services.IServiceBooking;
 import com.hotelmanagement.services.PaymentMethodService;
+import com.hotelmanagement.stub.User;
+import com.hotelmanagement.stub.dao.UserDAO;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -34,6 +38,9 @@ public class BookingController {
 	private final BookingService bookingService;
 	private final PaymentMethodService paymentMethodService;
 
+	//stub
+    @Autowired
+    private UserDAO userDAO;
 	@Autowired
 	public BookingController(ApplicationContext context, IServiceBooking services, 
 			BookingService bookingService, PaymentMethodService paymentMethodService) {
@@ -105,16 +112,36 @@ public class BookingController {
 	public String bookingSuccess() {
 		return "paymentResult";
 	}
+	
+    @GetMapping("/history")
+    public String viewBookingHistory( Model model) {
+    	User user = userDAO.getStubUser();
+        List<BookingResponse> bookings = bookingService.getBookingHistoryByUserId(user.getUserID());
+        model.addAttribute("bookings", bookings);
+        model.addAttribute("userId", user.getUserID());
+        return "booking-history";
+    }
 
-	//  Tách logic tính tổng giá
+    // Hủy phòng
+    @PostMapping("/cancel")
+    public String cancelBooking(@ModelAttribute CancelBookingRequest cancelRequest, Model model) {
+        try {
+            bookingService.cancelBookRoom(cancelRequest);
+            model.addAttribute("message", "Hủy đặt phòng thành công");
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+        }
+        return "redirect:/bookings/history?userId=" + cancelRequest.getUserId();
+    }
+
 	private int calculateTotalPrice(BookingRequest request) {
-		// Tính số ngày đặt phòng
+
 		long numberOfDays = ChronoUnit.DAYS.between(request.getCheckInDate(), request.getCheckOutDate());
 		
-		// Tính tổng tiền phòng cho toàn bộ số ngày
+
 		int totalRoomPrice = request.getRoomPrice() * (int)numberOfDays;
 		
-		// Tính tổng tiền dịch vụ
+
 		int totalServicePrice = 0;
 		if (request.getSelectedServices() != null) {
 			for (SelectedService s : request.getSelectedServices()) {
@@ -125,7 +152,8 @@ public class BookingController {
 			}
 		}
 		
-		// Tổng tiền = tiền phòng + tiền dịch vụ
+
 		return totalRoomPrice + totalServicePrice;
 	}
+	
 }

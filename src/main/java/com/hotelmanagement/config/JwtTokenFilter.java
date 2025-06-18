@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -13,6 +15,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotelmanagement.services.JWTService;
 
@@ -24,6 +28,9 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class JwtTokenFilter extends OncePerRequestFilter {
+
+	private static final Logger logger = LoggerFactory.getLogger(JwtTokenFilter.class);
+
 	@Autowired
 	private JWTService jwtService;
 
@@ -31,84 +38,51 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 	private UserDetailsService userDetailsService;
 
 	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-
-		String requestURI = request.getRequestURI();
-		System.out.println("JwtTokenFilter processing request: " + requestURI);
-
-		// Lấy token từ cookie
-		String token = null;
-		Cookie[] cookies = request.getCookies();
-		if (cookies != null) {
-			for (Cookie cookie : cookies) {
-				if ("jwt_token".equals(cookie.getName())) {
-					token = cookie.getValue();
-					break;
-				}
-			}
-		}
-
-		// Xử lý xác thực cho tất cả các request
-		if (token != null && jwtService.validateToken(token)) {
-			try {
+		try {
+			String token = getJwtFromRequest(request);
+			String requestURI = request.getRequestURI();
+			
+			logger.debug("Processing request: {}", requestURI);
+			
+			if (token != null && jwtService.validateToken(token)) {
 				String username = jwtService.extractUsernameFromToken(token);
-				UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 				List<String> roles = jwtService.extractAuthoritiesFromToken(token);
+				Integer userId = jwtService.getUserIdFromToken(token);
 				
-				System.out.println("JwtTokenFilter - User: " + username);
-				System.out.println("JwtTokenFilter - Roles from token: " + roles);
-
-				// Tạo authentication token
-				List<GrantedAuthority> authorities = roles.stream()
-						.map(SimpleGrantedAuthority::new)
-						.collect(Collectors.toList());
-
-				UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-					userDetails, null, authorities);
+				logger.debug("Token validated for user: {}, roles: {}, userId: {}", username, roles, userId);
 				
-				// Đặt authentication vào SecurityContext
-				SecurityContextHolder.getContext().setAuthentication(authToken);
+				if (userId != null) {
+					UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+					List<GrantedAuthority> authorities = roles.stream()
+							.map(SimpleGrantedAuthority::new)
+							.collect(Collectors.toList());
 
-				// Kiểm tra quyền truy cập admin
-				if (requestURI.startsWith("/admin/")) {
-					boolean hasAdminRole = roles.stream()
-							.anyMatch(role -> role.equals("ROLE_ADMIN"));
+					UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+							userDetails, null, authorities);
 					
-					System.out.println("JwtTokenFilter - Checking admin access: " + hasAdminRole);
-
-					if (!hasAdminRole) {
-						System.out.println("JwtTokenFilter - Access denied: User does not have ROLE_ADMIN");
-						response.sendRedirect("/403");
-						return;
-					}
-				}
-
-				// Chuyển hướng admin đến trang quản lý phòng
-				if (requestURI.equals("/admin")) {
-					boolean hasAdminRole = roles.stream()
-							.anyMatch(role -> role.equals("ROLE_ADMIN"));
-					if (hasAdminRole) {
-						response.sendRedirect("/admin/roommanagement");
-						return;
-					}
-				}
-				
-			} catch (Exception e) {
-				System.err.println("JwtTokenFilter - Error processing JWT token: " + e.getMessage());
-				SecurityContextHolder.clearContext();
-				if (requestURI.startsWith("/admin/") || requestURI.startsWith("/booking/")) {
-					response.sendRedirect("/login");
+					SecurityContextHolder.getContext().setAuthentication(authentication);
+					logger.debug("Authentication set in SecurityContext");
+				} else {
+					logger.warn("Could not get userId from token");
+					handleUnauthenticatedRequest(request, response);
 					return;
 				}
+			} else if (isProtectedResource(requestURI)) {
+				logger.warn("No valid token found for protected resource: {}", requestURI);
+				handleUnauthenticatedRequest(request, response);
+				return;
 			}
-		} else if (requestURI.startsWith("/admin/") || requestURI.startsWith("/booking/")) {
-			System.out.println("JwtTokenFilter - No valid token found for protected resource");
-			response.sendRedirect("/login");
-			return;
+		} catch (Exception ex) {
+			logger.error("Could not set user authentication in security context", ex);
+			if (isProtectedResource(request.getRequestURI())) {
+				handleUnauthenticatedRequest(request, response);
+				return;
+			}
 		}
-
-		chain.doFilter(request, response);
+		
+		filterChain.doFilter(request, response);
 	}
 
 	@Override
@@ -122,5 +96,29 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 			   path.equals("/login") ||
 			   path.equals("/register") ||
 			   path.equals("/403");
+	}
+
+	private String getJwtFromRequest(HttpServletRequest request) {
+		Cookie[] cookies = request.getCookies();
+		if (cookies != null) {
+			for (Cookie cookie : cookies) {
+				if ("jwt_token".equals(cookie.getName())) {
+					return cookie.getValue();
+				}
+			}
+		}
+		return null;
+	}
+
+	private boolean isProtectedResource(String requestURI) {
+		return requestURI.startsWith("/HotelManagement/admin/") || 
+			   requestURI.startsWith("/HotelManagement/booking/") || 
+			   requestURI.startsWith("/HotelManagement/booking-history/");
+	}
+
+	private void handleUnauthenticatedRequest(HttpServletRequest request, HttpServletResponse response) 
+			throws IOException {
+		SecurityContextHolder.clearContext();
+		response.sendRedirect("/HotelManagement/login");
 	}
 }
