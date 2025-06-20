@@ -383,6 +383,11 @@ body {
 					</li>
 					<c:if test="${not empty sessionScope.currentUser}">
 						<li class="nav-item">
+							<a class="nav-link" href="${pageContext.request.contextPath}/user/profile">
+								<i class="bi bi-person-circle"></i> Thông tin cá nhân
+							</a>
+						</li>
+						<li class="nav-item">
 							<a class="nav-link" href="${pageContext.request.contextPath}/auth/logout">
 								<i class="bi bi-box-arrow-right"></i> Đăng xuất
 							</a>

@@ -12,39 +12,33 @@ import com.hotelmanagement.room.services.RoomService;
 
 @Controller
 public class HomeController {
-	private final RoomService roomService;	
+	private final RoomService roomService;
+
 	@Autowired
 	public HomeController(RoomService roomService) {
 		this.roomService = roomService;
 	}
 
-	
 	@GetMapping("/")
 	public String home() {
-		
+
 		return "redirect:/login";
 	}
-	
-	
-	
+
 	@GetMapping("/home")
 	public String showHomePage(Model model) {
-        List<Room> rooms = roomService.getAllRoom();
-        model.addAttribute("rooms", rooms);
-        return "home";
-}
-	//@GetMapping("/home")
-	//public String showHomePage() {
-		//return "home"; 
-	//}
+		List<Room> rooms = roomService.getAllRoom();
+		model.addAttribute("rooms", rooms);
+		return "home";
+	}
 
 	@GetMapping("/login")
 	public String loginForm() {
 		return "/login";
 	}
-	
-    @GetMapping("/403")
-    public String accessDenied() {
-        return "error/403";
-    }
+
+	@GetMapping("/403")
+	public String accessDenied() {
+		return "error/403";
+	}
 }
