@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java"%>
 <%@ taglib prefix="c" uri="jakarta.tags.core"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<html>
+<html lang="vi">
 <head>
 <title>Đặt Phòng</title>
 <link
@@ -298,6 +298,7 @@ body {
 </style>
 </head>
 <body>
+	<jsp:include page="components/header.jsp" />
 	<div class="booking-container">
 		<div class="booking-header">
 			<h2>
@@ -309,6 +310,37 @@ body {
 		<c:if test="${not empty message}">
 			<div class="alert alert-danger" role="alert">
 				<i class="bi bi-exclamation-triangle-fill"></i> ${message}
+			</div>
+		</c:if>
+
+		<!-- Thông tin phòng đã chọn -->
+		<c:if test="${not empty selectedRoom}">
+			<div class="form-section" style="background: linear-gradient(135deg, #f0f9f4 0%, #e8f5e8 100%); border: 2px solid var(--secondary-color);">
+				<h4 style="color: var(--secondary-color); border-bottom-color: var(--secondary-color);">
+					<i class="bi bi-building section-icon"></i> Thông tin phòng đã chọn
+				</h4>
+				<div class="row">
+					<div class="col-md-6">
+						<div class="mb-2">
+							<strong>Số phòng:</strong> ${selectedRoom.roomNumber}
+						</div>
+						<div class="mb-2">
+							<strong>Loại phòng:</strong> ${selectedRoom.roomType.typeName}
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="mb-2">
+							<strong>Giá phòng:</strong> 
+							<span style="color: var(--secondary-color); font-weight: 600; font-size: 1.1rem;">
+								${selectedRoom.price} VND/đêm
+							</span>
+						</div>
+						<div class="mb-2">
+							<strong>Trạng thái:</strong> 
+							<span class="badge bg-success">Có sẵn</span>
+						</div>
+					</div>
+				</div>
 			</div>
 		</c:if>
 
@@ -443,8 +475,7 @@ body {
 						<div class="price-summary">
 							<div class="price-item">
 								<span>Giá phòng/ngày:</span> <span class="price-value"
-									id="roomPricePerDay">${request.roomPrice != null ? request.roomPrice : 20000}
-									VNĐ</span>
+									id="roomPricePerDay">${request.roomPrice} VNĐ</span>
 							</div>
 							<div class="price-item">
 								<span>Số ngày:</span> <span class="price-value" id="displayDays">0
@@ -478,8 +509,8 @@ body {
 	<script
 		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 	<script>
-		// Lấy giá phòng từ BookingRequest, nếu không có thì dùng giá mặc định
-		const ROOM_PRICE_PER_DAY = ${request.roomPrice != null ? request.roomPrice : 20000};
+		// Lấy giá phòng từ BookingRequest
+		const ROOM_PRICE_PER_DAY = ${request.roomPrice};
 
 		function calculateTotalDays() {
 			const checkInDate = new Date(document.getElementById('checkInDate').value);

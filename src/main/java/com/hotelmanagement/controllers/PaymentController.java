@@ -37,6 +37,7 @@ public class PaymentController {
 					bookingService.bookRoom(bookingRequest);
 					// Clear the booking request from session after successful booking
 					session.removeAttribute("bookingRequest");
+					model.addAttribute("success", true);
 					model.addAttribute("message", "Thanh toán thành công. Mã giao dịch: " + vnp_TxnRef);
 				} catch (IllegalArgumentException e) {
 					model.addAttribute("message", "Lỗi khi đặt phòng: " + e.getMessage());

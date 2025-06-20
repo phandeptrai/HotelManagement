@@ -15,6 +15,7 @@ import com.hotelmanagement.dtos.CancelBookingRequest;
 import com.hotelmanagement.room.models.Room;
 import com.hotelmanagement.room.models.enums.RoomStatus;
 import com.hotelmanagement.room.services.RoomService;
+import com.hotelmanagement.user.repositories.UserRepository;
 
 @Service
 public class BookingServiceImpl implements BookingService {
@@ -25,24 +26,29 @@ public class BookingServiceImpl implements BookingService {
 	@Autowired
 	private RoomService roomService;
 
+	@Autowired
+	private UserRepository userRepository;
+
 	@Override
 	@Transactional
-	public void bookRoom(BookingRequest bookingRequest) {
-		// Validate booking request
+	public void bookRoom(BookingRequest bookingRequest, String bookingStatus) {
 		validateBookingRequest(bookingRequest);
-		
 		Room room = roomService.getRoomByID(bookingRequest.getRoomId());
 		if (room == null) {
 			throw new IllegalArgumentException("Room not found");
 		}
-		
 		if (room.getRoomStatus() != RoomStatus.AVAILABLE) {
 			throw new IllegalArgumentException("Room is not available for booking");
 		}
-		
+		bookingRequest.setBookingStatus(bookingStatus);
 		bookingDAO.bookRoom(bookingRequest);
-		
 		roomService.updateRoomStatus(bookingRequest.getRoomId(), RoomStatus.BOOKED);
+	}
+
+	@Override
+	@Transactional
+	public void bookRoom(BookingRequest bookingRequest) {
+		bookRoom(bookingRequest, "CONFIRMED");
 	}
 	
 	@Override
@@ -97,6 +103,25 @@ public class BookingServiceImpl implements BookingService {
 	@Override
 	public List<BookingResponse> getFilteredBookingHistory(BookingFilterRequest filter) {
 		return bookingDAO.getFilteredBookingHistory(filter);
+	}
+
+	@Override
+	public void confirmBooking(int bookingId) {
+		bookingDAO.confirmBooking(bookingId);
+	}
+
+	@Override
+	public List<BookingResponse> getAllBookings() {
+		List<BookingResponse> bookings = bookingDAO.getAllBookings();
+		for (BookingResponse booking : bookings) {
+			if (booking.getUserId() > 0) {
+				var user = userRepository.findById(booking.getUserId());
+				if (user != null) {
+					booking.setCustomerName(user.getFullName());
+				}
+			}
+		}
+		return bookings;
 	}
 
 }

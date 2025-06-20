@@ -122,6 +122,22 @@ public class UserDAOImpl implements UserDAO {
 		}
 	}
 
+	@Override
+	public User findById(int userId) {
+		String sql = "SELECT * FROM users WHERE userID = ?";
+		try (Connection conn = dataSource.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setInt(1, userId);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				if (rs.next()) {
+					return mapUser(rs);
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	private User mapUser(ResultSet rs) throws SQLException {
 		User user = new User();
 		user.setId(rs.getInt("userID"));

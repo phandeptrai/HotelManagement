@@ -77,15 +77,22 @@ public class AuthController {
 
 	@GetMapping("/logout")
 	public String logout(HttpServletRequest request, HttpServletResponse response) {
+	    // Xóa session
+	    request.getSession().invalidate();
 
-		Cookie jwtCookie = new Cookie("jwt_token", null);
-		jwtCookie.setHttpOnly(true);
-		jwtCookie.setMaxAge(0);
-		jwtCookie.setPath("/");
-		response.addCookie(jwtCookie);
-		SecurityContextHolder.clearContext();
-		return "redirect:/auth/login";
+	    // Xóa cookie JWT nếu có
+	    Cookie jwtCookie = new Cookie("jwt_token", null);
+	    jwtCookie.setHttpOnly(true);
+	    jwtCookie.setMaxAge(0);
+	    jwtCookie.setPath("/");
+	    response.addCookie(jwtCookie);
+
+	    // Xóa context nếu dùng Spring Security
+	    SecurityContextHolder.clearContext();
+
+	    return "redirect:/auth/login";
 	}
+
 
 	@PostMapping("/login")
 	public String login(@ModelAttribute LoginRequest loginRequest, HttpServletRequest request,

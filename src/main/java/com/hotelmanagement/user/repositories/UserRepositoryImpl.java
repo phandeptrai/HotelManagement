@@ -49,4 +49,9 @@ public class UserRepositoryImpl implements UserRepository {
 		userDAO.deleteUserById(username);
 	}
 
+	@Override
+	public User findById(int userId) {
+		return userDAO.findById(userId);
+	}
+
 }

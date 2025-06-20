@@ -14,7 +14,7 @@ public class CashPaymentStrategy implements PaymentStrategy {
     
     @Override
     public String pay(HttpServletRequest request, PaymentRequest paymentRequest) {
-        bookingService.bookRoom(paymentRequest.getBookingRequest());
+        bookingService.bookRoom(paymentRequest.getBookingRequest(), "PENDING");
         return "redirect:/booking/success";
     }
 }

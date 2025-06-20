@@ -42,6 +42,8 @@ public class BookingRequest {
     
     private List<SelectedService> selectedServices = new ArrayList<>();
 	
+    private String bookingStatus;
+	
 	
 	public BookingRequest() {
 		super();
@@ -102,6 +104,12 @@ public class BookingRequest {
 	}
 	public void setTotalPrice(int totalPrice) {
 		this.totalPrice = totalPrice;
+	}
+	public String getBookingStatus() {
+		return bookingStatus;
+	}
+	public void setBookingStatus(String bookingStatus) {
+		this.bookingStatus = bookingStatus;
 	}
 
 

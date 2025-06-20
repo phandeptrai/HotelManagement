@@ -29,13 +29,14 @@ public class BookingDAO {
 	public void bookRoom(BookingRequest bookingRequest) {
         try (Connection conn = dataSource.getConnection()) {
             // 1. Insert booking với tổng tiền
-            String sql = "INSERT INTO roombookings(userID, roomID, checkInDate, checkOutDate, totalAmount) VALUES (?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO roombookings(userID, roomID, checkInDate, checkOutDate, totalAmount, bookingStatus) VALUES (?, ?, ?, ?, ?, ?)";
             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             stmt.setInt(1, bookingRequest.getUserId());
             stmt.setInt(2, bookingRequest.getRoomId());
             stmt.setDate(3, java.sql.Date.valueOf(bookingRequest.getCheckInDate()));
             stmt.setDate(4, java.sql.Date.valueOf(bookingRequest.getCheckOutDate()));
             stmt.setInt(5, bookingRequest.getTotalPrice());
+            stmt.setString(6, bookingRequest.getBookingStatus() != null ? bookingRequest.getBookingStatus() : "PENDING");
             stmt.executeUpdate();
 
             // 2. Lấy bookingID tự tăng
@@ -192,11 +193,56 @@ public class BookingDAO {
 	            booking.setCancelReason(rs.getString("cancelReason"));
 	            booking.setCancelledAt(rs.getTimestamp("cancelledAt") != null ? rs.getTimestamp("cancelledAt").toLocalDateTime() : null);
 	            booking.setServices(this.booking.getServiceByBookingId(booking.getBookingId()));
+	            booking.setUserId(rs.getInt("userID"));
 	            result.add(booking);
 	        }
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	        throw new RuntimeException("Lỗi khi lấy lịch sử đặt phòng: " + e.getMessage());
+	    }
+	    return result;
+	}
+
+	public void confirmBooking(int bookingId) {
+	    String sql = "UPDATE roombookings SET bookingStatus = 'CONFIRMED', cancelReason = NULL, cancelledAt = NULL WHERE bookingID = ?";
+	    try (Connection conn = dataSource.getConnection();
+	         PreparedStatement stmt = conn.prepareStatement(sql)) {
+	        stmt.setInt(1, bookingId);
+	        int affectedRows = stmt.executeUpdate();
+	        if (affectedRows == 0) {
+	            throw new RuntimeException("Không tìm thấy booking để duyệt.");
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        throw new RuntimeException("Lỗi khi duyệt đặt phòng: " + e.getMessage());
+	    }
+	}
+
+	public List<BookingResponse> getAllBookings() {
+	    List<BookingResponse> result = new ArrayList<>();
+	    String sql = "SELECT rb.*, r.roomNumber FROM roombookings rb JOIN rooms r ON rb.roomID = r.roomID ORDER BY rb.createdAt DESC";
+	    try (Connection conn = dataSource.getConnection();
+	         PreparedStatement stmt = conn.prepareStatement(sql)) {
+	        ResultSet rs = stmt.executeQuery();
+	        while (rs.next()) {
+	            BookingResponse booking = new BookingResponse();
+	            booking.setBookingId(rs.getInt("bookingID"));
+	            booking.setRoomId(rs.getInt("roomID"));
+	            booking.setRoomNumber(rs.getString("roomNumber"));
+	            booking.setCheckInDate(rs.getDate("checkInDate").toLocalDate());
+	            booking.setCheckOutDate(rs.getDate("checkOutDate").toLocalDate());
+	            booking.setBookingStatus(rs.getString("bookingStatus"));
+	            booking.setTotalAmount(rs.getBigDecimal("totalAmount"));
+	            booking.setCreatedAt(rs.getTimestamp("createdAt").toLocalDateTime());
+	            booking.setCancelReason(rs.getString("cancelReason"));
+	            booking.setCancelledAt(rs.getTimestamp("cancelledAt") != null ? rs.getTimestamp("cancelledAt").toLocalDateTime() : null);
+	            booking.setServices(this.booking.getServiceByBookingId(booking.getBookingId()));
+	            booking.setUserId(rs.getInt("userID"));
+	            result.add(booking);
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        throw new RuntimeException("Lỗi khi lấy danh sách booking: " + e.getMessage());
 	    }
 	    return result;
 	}

@@ -17,6 +17,8 @@ public class BookingResponse {
     private String cancelReason;      
     private LocalDateTime cancelledAt; 
     private List<ServiceBookingResponse> services; 
+    private int userId;
+    private String customerName;
 
     // Constructors
     public BookingResponse() {}
@@ -87,5 +89,17 @@ public class BookingResponse {
     }
     public void setServices(List<ServiceBookingResponse> services) {
         this.services = services;
+    }
+    public int getUserId() {
+        return userId;
+    }
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+    public String getCustomerName() {
+        return customerName;
+    }
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
     }
 }

@@ -7,9 +7,11 @@ import com.hotelmanagement.dtos.PaymentRequest;
 import com.hotelmanagement.dtos.SelectedService;
 import com.hotelmanagement.dtos.ServiceBookingResponse;
 import com.hotelmanagement.payment.PaymentStrategy;
+import com.hotelmanagement.room.services.RoomService;
 import com.hotelmanagement.services.BookingService;
 import com.hotelmanagement.services.IServiceBooking;
 import com.hotelmanagement.services.PaymentMethodService;
+
 
 import com.hotelmanagement.stub.dao.UserDAO;
 
@@ -37,31 +39,84 @@ public class BookingController {
 	private final IServiceBooking services;
 	private final BookingService bookingService;
 	private final PaymentMethodService paymentMethodService;
+	private final RoomService roomService;
 
-	//stub
-    @Autowired
-    private UserDAO userDAO;
 	@Autowired
 	public BookingController(ApplicationContext context, IServiceBooking services, 
-			BookingService bookingService, PaymentMethodService paymentMethodService) {
+			BookingService bookingService, PaymentMethodService paymentMethodService,
+			RoomService roomService) {
 		this.context = context;
 		this.services = services;
 		this.bookingService = bookingService;
 		this.paymentMethodService = paymentMethodService;
+		this.roomService = roomService;
 	}
 
 	@GetMapping("/getform")
-	public String getFormBooking(HttpSession session,Model model) {
-		 User user = (User) session.getAttribute("currentUser");
-		 
+	public String getFormBooking(HttpServletRequest request, HttpSession session, Model model) {
+		User user = (User) session.getAttribute("currentUser");
+		
+		// Lấy parameters từ request
+		String roomIdStr = request.getParameter("roomId");
+		String roomPriceStr = request.getParameter("roomPrice");
+		
+		Integer roomId = null;
+		Integer roomPrice = null;
+		
+		if (roomIdStr != null && !roomIdStr.trim().isEmpty()) {
+			try {
+				roomId = Integer.parseInt(roomIdStr);
+			} catch (NumberFormatException e) {
+				System.err.println("Room ID không hợp lệ: " + roomIdStr);
+			}
+		}
+		
+		if (roomPriceStr != null && !roomPriceStr.trim().isEmpty()) {
+			try {
+				roomPrice = Integer.parseInt(roomPriceStr);
+			} catch (NumberFormatException e) {
+				System.err.println("Room Price không hợp lệ: " + roomPriceStr);
+			}
+		}
+		
 		BookingRequest bookingRequest = new BookingRequest();
-		bookingRequest.setRoomPrice(20000);
+		
+		// Map thông tin phòng từ URL parameters
+		if (roomId != null) {
+			bookingRequest.setRoomId(roomId);
+			
+			// Lấy thông tin phòng từ database
+			try {
+				var room = roomService.getRoomByID(roomId);
+				if (room != null) {
+					model.addAttribute("selectedRoom", room);
+					// Cập nhật giá phòng từ database nếu có
+					if (roomPrice == null) {
+						roomPrice = (int) room.getPrice();
+					}
+				}
+			} catch (Exception e) {
+				System.err.println("Không thể lấy thông tin phòng: " + e.getMessage());
+			}
+		}
+		
+		if (roomPrice != null) {
+			bookingRequest.setRoomPrice(roomPrice);
+		} else {
+			// Default price nếu không có
+			bookingRequest.setRoomPrice(20000);
+		}
+		
 		bookingRequest.setUserId(user.getUserID());
+		
 		model.addAttribute("user", user);
 		model.addAttribute("request", bookingRequest);
 		model.addAttribute("availableServices", services.getAllServices());
 		model.addAttribute("paymentMethods", paymentMethodService.getAllPaymentMethods());
+		
 		System.err.println("User trong session: " + user);
+		System.err.println("Room ID: " + roomId + ", Room Price: " + roomPrice);
+		
 		return "createBooking";
 	}
 
@@ -114,7 +169,17 @@ public class BookingController {
 	}
 
 	@GetMapping("/success")
-	public String bookingSuccess() {
+	public String bookingSuccess(Model model, HttpSession session) {
+		BookingRequest bookingRequest = (BookingRequest) session.getAttribute("bookingRequest");
+		if (bookingRequest != null && "PENDING".equals(bookingRequest.getBookingStatus())) {
+			model.addAttribute("pending", true);
+			model.addAttribute("message", "Đặt phòng của bạn đang chờ xác nhận từ quản trị viên.");
+			session.removeAttribute("bookingRequest");
+		} else {
+			model.addAttribute("success", true);
+			model.addAttribute("message", "Thanh toán thành công. Đặt phòng đã được xác nhận.");
+			session.removeAttribute("bookingRequest");
+		}
 		return "paymentResult";
 	}
 	
@@ -139,6 +204,17 @@ public class BookingController {
         return "redirect:/bookings/history?userId=" + cancelRequest.getUserId();
     }
 
+	@PostMapping("/confirm")
+	public String confirmBooking(@RequestParam("bookingId") int bookingId, Model model) {
+		try {
+			bookingService.confirmBooking(bookingId);
+			model.addAttribute("message", "Duyệt đặt phòng thành công!");
+		} catch (Exception e) {
+			model.addAttribute("error", e.getMessage());
+		}
+		return "redirect:/booking/history";
+	}
+
 	private int calculateTotalPrice(BookingRequest request) {
 
 		long numberOfDays = ChronoUnit.DAYS.between(request.getCheckInDate(), request.getCheckOutDate());
@@ -161,4 +237,10 @@ public class BookingController {
 		return totalRoomPrice + totalServicePrice;
 	}
 	
+	@GetMapping("/admin-management")
+	public String adminBookingManagement(Model model) {
+		List<BookingResponse> bookings = bookingService.getAllBookings();
+		model.addAttribute("bookings", bookings);
+		return "admin/admin-booking-management";
+	}
 }

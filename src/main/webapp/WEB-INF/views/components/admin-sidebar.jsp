@@ -1,8 +1,8 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <div class="sidebar">
 	<h3>Admin Panel</h3>
 	<ul>
 		<li><a href="${pageContext.request.contextPath}/admin/roommanagement">Manage Rooms</a></li>
+		<li><a href="${pageContext.request.contextPath}/booking/admin-management">Manage Bookings</a></li>
 		<li><a href="${pageContext.request.contextPath}/admin/user/usermanagement">Manage Users</a></li>
 		<li>
 			<a href="${pageContext.request.contextPath}/auth/logout" class="logout-btn">
