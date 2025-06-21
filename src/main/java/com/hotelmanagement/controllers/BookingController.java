@@ -12,9 +12,6 @@ import com.hotelmanagement.services.BookingService;
 import com.hotelmanagement.services.IServiceBooking;
 import com.hotelmanagement.services.PaymentMethodService;
 
-
-import com.hotelmanagement.stub.dao.UserDAO;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -30,6 +27,8 @@ import com.hotelmanagement.user.entities.User;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import com.hotelmanagement.user.entities.UserRole;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/booking")
@@ -194,25 +193,33 @@ public class BookingController {
 
     // Hủy phòng
     @PostMapping("/cancel")
-    public String cancelBooking(@ModelAttribute CancelBookingRequest cancelRequest, Model model) {
+    public String cancelBooking(@ModelAttribute CancelBookingRequest cancelRequest, 
+                               RedirectAttributes redirectAttributes) {
         try {
             bookingService.cancelBookRoom(cancelRequest);
-            model.addAttribute("message", "Hủy đặt phòng thành công");
+            redirectAttributes.addFlashAttribute("message", "Hủy đặt phòng thành công!");
         } catch (Exception e) {
-            model.addAttribute("error", e.getMessage());
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
-        return "redirect:/bookings/history?userId=" + cancelRequest.getUserId();
+        return "redirect:/booking-history";
     }
 
 	@PostMapping("/confirm")
-	public String confirmBooking(@RequestParam("bookingId") int bookingId, Model model) {
+	public String confirmBooking(@RequestParam("bookingId") int bookingId, Model model, HttpSession session) {
+		// Kiểm tra quyền admin
+		User currentUser = (User) session.getAttribute("currentUser");
+		if (currentUser == null || currentUser.getRole() != UserRole.ROLE_ADMIN) {
+			model.addAttribute("error", "Bạn không có quyền thực hiện thao tác này!");
+			return "redirect:/booking-history";
+		}
+		
 		try {
 			bookingService.confirmBooking(bookingId);
 			model.addAttribute("message", "Duyệt đặt phòng thành công!");
 		} catch (Exception e) {
 			model.addAttribute("error", e.getMessage());
 		}
-		return "redirect:/booking/history";
+		return "redirect:/booking-history";
 	}
 
 	private int calculateTotalPrice(BookingRequest request) {

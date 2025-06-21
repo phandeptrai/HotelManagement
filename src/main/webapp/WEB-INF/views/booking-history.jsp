@@ -209,21 +209,38 @@ body {
 }
 
 .alert {
+	border: none;
 	border-radius: 10px;
+	padding: 1rem 1.5rem;
 	margin-bottom: 1.5rem;
-	font-size: 0.9rem;
+	font-weight: 500;
 }
 
 .alert-success {
-	background-color: #f0f9f4;
-	border-color: var(--secondary-color);
-	color: var(--secondary-color);
+	background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+	color: #155724;
+	border-left: 4px solid #28a745;
 }
 
 .alert-danger {
-	background-color: #fdf3f2;
-	border-color: var(--danger-color);
-	color: var(--danger-color);
+	background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+	color: #721c24;
+	border-left: 4px solid #dc3545;
+}
+
+.alert {
+	animation: slideInDown 0.5s ease-out;
+}
+
+@keyframes slideInDown {
+	from {
+		transform: translateY(-20px);
+		opacity: 0;
+	}
+	to {
+		transform: translateY(0);
+		opacity: 1;
+	}
 }
 
 .empty-state {
@@ -281,6 +298,107 @@ body {
 .booking-card:nth-child(3) { animation-delay: 0.3s; }
 .booking-card:nth-child(4) { animation-delay: 0.4s; }
 .booking-card:nth-child(5) { animation-delay: 0.5s; }
+
+/* Fix modal flickering issues */
+.modal {
+    animation: none !important;
+}
+
+.modal.fade .modal-dialog {
+    transition: transform 0.3s ease-out;
+    transform: translate(0, -50px);
+}
+
+.modal.show .modal-dialog {
+    transform: none;
+}
+
+.modal-backdrop {
+    animation: none !important;
+}
+
+.modal-backdrop.fade {
+    opacity: 0;
+    transition: opacity 0.15s linear;
+}
+
+.modal-backdrop.show {
+    opacity: 0.5;
+}
+
+/* Prevent modal from flickering */
+.modal-dialog {
+    pointer-events: auto;
+}
+
+/* Ensure modal content is stable */
+.modal-content {
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* Fix button focus issues */
+.btn:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Prevent textarea from causing layout shifts */
+.form-control {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* Improve cancel modal styling */
+#cancelModal .modal-body {
+    padding: 1.5rem;
+}
+
+#cancelModal .form-label {
+    font-weight: 600;
+    color: var(--dark-color);
+    margin-bottom: 0.5rem;
+}
+
+#cancelModal .form-control {
+    border: 1px solid #d1d3e2;
+    border-radius: 8px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#cancelModal .form-control:focus {
+    border-color: var(--danger-color);
+    box-shadow: 0 0 0 0.2rem rgba(231, 74, 59, 0.15);
+}
+
+#cancelModal .modal-footer {
+    border-top: 1px solid #e3e6f0;
+    padding: 1rem 1.5rem;
+}
+
+#cancelModal .btn {
+    padding: 0.6rem 1.5rem;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+#cancelModal .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Improve text display for cancelled bookings */
+.text-muted small {
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+/* Loading state for buttons */
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+}
     </style>
 </head>
 <body>
@@ -354,12 +472,21 @@ body {
                                     <c:when test="${booking.bookingStatus == 'CANCELLED'}">
                                         <div class="text-muted">
                                             <i class="bi bi-x-circle"></i> Đã hủy lúc ${booking.cancelledAt}
+                                            <c:if test="${not empty booking.cancelReason}">
+                                                <br><small class="text-muted">Lý do: ${booking.cancelReason}</small>
+                                            </c:if>
+                                        </div>
+                                    </c:when>
+                                    <c:when test="${booking.bookingStatus == 'CONFIRMED' and booking.checkInDate <= today}">
+                                        <div class="text-muted">
+                                            <i class="bi bi-info-circle"></i> Không thể hủy - đã đến ngày nhận phòng
                                         </div>
                                     </c:when>
                                     <c:otherwise>
-                                        <button type="button" class="btn btn-danger" 
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#cancelModal${booking.bookingId}">
+                                        <button type="button" class="btn btn-danger cancel-booking-btn" 
+                                                data-booking-id="${booking.bookingId}"
+                                                data-room-number="${booking.roomNumber}"
+                                                data-check-in="${booking.checkInDate}">
                                             <i class="bi bi-x-circle"></i> Hủy phòng
                                         </button>
                                     </c:otherwise>
@@ -368,52 +495,7 @@ body {
                                    class="btn btn-outline-secondary">
                                     <i class="bi bi-eye"></i> Xem chi tiết
                                 </a>
-                                <c:if test="${booking.bookingStatus == 'PENDING'}">
-                                    <form action="${pageContext.request.contextPath}/booking/confirm" method="post" style="display:inline-block;">
-                                        <input type="hidden" name="bookingId" value="${booking.bookingId}" />
-                                        <button type="submit" class="btn btn-success">
-                                            <i class="bi bi-check-circle"></i> Duyệt
-                                        </button>
-                                    </form>
-                                </c:if>
                             </div>
-
-                            <!-- Cancel Modal -->
-                            <c:if test="${booking.bookingStatus != 'CANCELLED'}">
-                                <div class="modal fade" id="cancelModal${booking.bookingId}" tabindex="-1">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">
-                                                    <i class="bi bi-exclamation-triangle"></i> Xác nhận hủy phòng
-                                                </h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                            </div>
-                                            <form action="${pageContext.request.contextPath}/booking/cancel" method="post">
-                                                <div class="modal-body">
-                                                    <p>Bạn có chắc chắn muốn hủy đặt phòng #${booking.bookingId}?</p>
-                                                    <div class="mb-3">
-                                                        <label for="cancelReason${booking.bookingId}" class="form-label">Lý do hủy:</label>
-                                                        <textarea class="form-control" id="cancelReason${booking.bookingId}" 
-                                                                  name="cancelReason" rows="3" required 
-                                                                  placeholder="Nhập lý do hủy phòng..."></textarea>
-                                                    </div>
-                                                    <input type="hidden" name="bookingId" value="${booking.bookingId}" />
-                                                    <input type="hidden" name="userId" value="${userId}" />
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                                        <i class="bi bi-x"></i> Hủy
-                                                    </button>
-                                                    <button type="submit" class="btn btn-danger">
-                                                        <i class="bi bi-check"></i> Xác nhận hủy
-                                                    </button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </c:if>
                         </div>
                     </div>
                 </c:forEach>
@@ -431,6 +513,117 @@ body {
         </c:choose>
     </div>
 
+    <!-- Single Cancel Modal for all bookings -->
+    <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cancelModalLabel">
+                        <i class="bi bi-exclamation-triangle"></i> Xác nhận hủy phòng
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="${pageContext.request.contextPath}/booking/cancel" method="post" id="cancelForm">
+                    <div class="modal-body">
+                        <p id="cancelModalText">Bạn có chắc chắn muốn hủy đặt phòng?</p>
+                        <div class="mb-3">
+                            <label for="cancelReason" class="form-label">Lý do hủy:</label>
+                            <textarea class="form-control" id="cancelReason" 
+                                      name="cancelReason" rows="3" required 
+                                      placeholder="Nhập lý do hủy phòng..."></textarea>
+                        </div>
+                        <input type="hidden" name="bookingId" id="cancelBookingId" />
+                        <input type="hidden" name="userId" value="${currentUser.userID}" />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="bi bi-x"></i> Hủy
+                        </button>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-check"></i> Xác nhận hủy
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Handle cancel booking button clicks
+        document.addEventListener('DOMContentLoaded', function() {
+            const cancelButtons = document.querySelectorAll('.cancel-booking-btn');
+            const cancelModal = new bootstrap.Modal(document.getElementById('cancelModal'));
+            
+            cancelButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const bookingId = this.getAttribute('data-booking-id');
+                    const roomNumber = this.getAttribute('data-room-number');
+                    const checkInDate = this.getAttribute('data-check-in');
+                    
+                    // Update modal content with more details
+                    document.getElementById('cancelModalText').innerHTML = 
+                        `<strong>Bạn có chắc chắn muốn hủy đặt phòng #${bookingId}?</strong><br>
+                         <small class="text-muted">
+                         Phòng: ${roomNumber}<br>
+                         Ngày nhận phòng: ${checkInDate}
+                         </small>`;
+                    document.getElementById('cancelBookingId').value = bookingId;
+                    
+                    // Clear previous reason
+                    document.getElementById('cancelReason').value = '';
+                    
+                    // Show modal
+                    cancelModal.show();
+                });
+            });
+            
+            // Handle form submission with better validation
+            document.getElementById('cancelForm').addEventListener('submit', function(e) {
+                const reason = document.getElementById('cancelReason').value.trim();
+                if (!reason) {
+                    e.preventDefault();
+                    alert('Vui lòng nhập lý do hủy phòng!');
+                    document.getElementById('cancelReason').focus();
+                    return false;
+                }
+                
+                if (reason.length < 10) {
+                    e.preventDefault();
+                    alert('Lý do hủy phòng phải có ít nhất 10 ký tự!');
+                    document.getElementById('cancelReason').focus();
+                    return false;
+                }
+                
+                // Show loading state
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Đang xử lý...';
+                submitBtn.disabled = true;
+                
+                // Hide modal
+                cancelModal.hide();
+                
+                // Submit form
+                this.submit();
+            });
+            
+            // Auto-resize textarea
+            const textarea = document.getElementById('cancelReason');
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+            });
+            
+            // Auto-refresh page after successful cancellation
+            const successMessage = document.querySelector('.alert-success');
+            if (successMessage && successMessage.textContent.includes('Hủy đặt phòng thành công')) {
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            }
+        });
+    </script>
 </body>
 </html>

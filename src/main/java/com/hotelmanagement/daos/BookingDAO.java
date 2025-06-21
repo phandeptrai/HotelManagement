@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,7 +74,7 @@ public class BookingDAO {
 	         PreparedStatement stmt = conn.prepareStatement(sql)) {
 	        stmt.setString(1, "CANCELLED");
 	        stmt.setString(2, cancelRequest.getCancelReason());
-	        stmt.setTimestamp(3, java.sql.Timestamp.valueOf(cancelRequest.getCancelTime()));
+	        stmt.setTimestamp(3, java.sql.Timestamp.valueOf(LocalDateTime.now()));
 	        stmt.setInt(4, cancelRequest.getBookingId());
 	        stmt.setInt(5, cancelRequest.getUserId());
 	        int affectedRows = stmt.executeUpdate();

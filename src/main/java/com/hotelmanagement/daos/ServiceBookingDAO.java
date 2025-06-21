@@ -48,7 +48,7 @@ public class ServiceBookingDAO {
 	}
 	public List<ServiceBookingResponse> getServiceByBookingId(int bookingID){
 		List<ServiceBookingResponse> serviceBookings = new ArrayList<ServiceBookingResponse>();
-		String sql = "SELECT services.serviceName,services.servicePrice,servicesbookings.quantity FROM servicebookings JOIN roombookings ON "
+		String sql = "SELECT services.serviceName, services.servicePrice, servicebookings.quantity FROM servicebookings JOIN roombookings ON "
 				+ "roombookings.bookingID = servicebookings.bookingID JOIN services ON "
 				+ "servicebookings.serviceID = services.serviceID "
 				+ "WHERE servicebookings.bookingID = ?";

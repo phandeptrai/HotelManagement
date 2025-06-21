@@ -18,11 +18,13 @@ import com.hotelmanagement.dtos.BookingFilterRequest;
 import com.hotelmanagement.dtos.BookingResponse;
 import com.hotelmanagement.services.BookingService;
 import com.hotelmanagement.services.JWTService;
-import com.hotelmanagement.stub.User;
-import com.hotelmanagement.stub.dao.UserDAO;
+import com.hotelmanagement.user.entities.User;
+import com.hotelmanagement.user.entities.UserRole;
+import com.hotelmanagement.user.services.UserService;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,8 +32,6 @@ import org.slf4j.LoggerFactory;
 @Controller
 @RequestMapping("/booking-history")
 public class BookingHistoryController {
-    @Autowired
-    private UserDAO userDAO;
 
     private static final Logger logger = LoggerFactory.getLogger(BookingHistoryController.class);
 
@@ -40,20 +40,51 @@ public class BookingHistoryController {
 
     @Autowired
     private JWTService jwtService;
+    
+    @Autowired
+    private UserService userService;
 
     @GetMapping
     public String getBookingHistory(
             Model model,
             HttpServletRequest request,
+            HttpSession session,
             @RequestParam(name = "status", required = false) String status,
             @RequestParam(name = "startDate", required = false) String startDate,
             @RequestParam(name = "endDate", required = false) String endDate) {
         
-        User user = userDAO.getStubUser();
+        // Try to get user from session first
+        User user = (User) session.getAttribute("currentUser");
+        logger.info("User from session: {}", user);
+        
+        // If not in session, try authentication
         if (user == null) {
-            logger.error("Could not get userId from token");
-            return "redirect:/login";
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            logger.info("Authentication object: {}", authentication);
+            logger.info("Authentication name: {}", authentication != null ? authentication.getName() : "null");
+            logger.info("Authentication is authenticated: {}", authentication != null ? authentication.isAuthenticated() : "null");
+            
+            if (authentication == null || !authentication.isAuthenticated()) {
+                logger.warn("User not authenticated, redirecting to login");
+                return "redirect:/HotelManagement/login";
+            }
+
+            String username = authentication.getName();
+            logger.info("Username from authentication: {}", username);
+            
+            user = userService.findByUsername(username);
+            logger.info("User found from authentication: {}", user);
+            
+            if (user == null) {
+                logger.error("Could not find user: {}", username);
+                return "redirect:/HotelManagement/login";
+            }
+            
+            // Store user in session for future use
+            session.setAttribute("currentUser", user);
         }
+
+        model.addAttribute("currentUser", user);
 
         BookingFilterRequest filter = new BookingFilterRequest();
         filter.setUserId(user.getUserID());
