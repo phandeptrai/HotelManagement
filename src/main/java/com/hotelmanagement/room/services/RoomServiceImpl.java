@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.hotelmanagement.dtos.RoomFormDTO;
 import com.hotelmanagement.room.models.Room;
+import com.hotelmanagement.room.models.RoomSearchCriteria;
 import com.hotelmanagement.room.models.RoomType;
 import com.hotelmanagement.room.models.enums.RoomStatus;
 import com.hotelmanagement.room.repositories.RoomRepository;
@@ -51,4 +52,9 @@ public class RoomServiceImpl implements RoomService {
 	public void updateRoomStatus(int roomID, RoomStatus status) {
 		roomRepository.updateRoomStatus(roomID, status);
 	}
+	
+	@Override
+    public List<Room> searchRooms(RoomSearchCriteria criteria) {
+        return roomRepository.searchRooms(criteria);
+    }
 }

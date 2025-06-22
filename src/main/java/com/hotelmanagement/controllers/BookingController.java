@@ -6,6 +6,8 @@ import com.hotelmanagement.dtos.CancelBookingRequest;
 import com.hotelmanagement.dtos.PaymentRequest;
 import com.hotelmanagement.dtos.SelectedService;
 import com.hotelmanagement.payment.PaymentStrategy;
+import com.hotelmanagement.room.models.Room;
+import com.hotelmanagement.room.models.RoomSearchCriteria;
 import com.hotelmanagement.room.services.RoomService;
 import com.hotelmanagement.services.BookingService;
 import com.hotelmanagement.services.IServiceBooking;
@@ -343,4 +345,5 @@ public class BookingController {
 		model.addAttribute("bookings", bookings);
 		return "admin/admin-booking-management";
 	}
+
 }

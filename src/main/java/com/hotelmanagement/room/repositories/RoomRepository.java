@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import com.hotelmanagement.dtos.RoomFormDTO;
 import com.hotelmanagement.room.models.Room;
+import com.hotelmanagement.room.models.RoomSearchCriteria;
 import com.hotelmanagement.room.models.RoomType;
 import com.hotelmanagement.room.models.enums.RoomStatus;
 
@@ -18,4 +19,6 @@ public interface RoomRepository {
 	void updateRoom(RoomFormDTO room);
 	void updateRoomStatus(int roomID, RoomStatus status);
 	List<RoomType> getAllRoomTypes();
+	List<Room> searchRooms(RoomSearchCriteria criteria);
+
 }
