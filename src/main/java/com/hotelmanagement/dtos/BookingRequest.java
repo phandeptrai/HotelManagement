@@ -9,6 +9,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 public class BookingRequest {
 
@@ -35,9 +36,10 @@ public class BookingRequest {
     private int paymentMethodID;
 
     @NotNull(message = "Giá phòng không được để trống")
-    @Min(value = 0, message = "Giá phòng không hợp lệ")
+    @Positive(message = "Giá phòng phải lớn hơn 0")
     private int roomPrice;
     
+    @Positive(message = "Tổng tiền phải lớn hơn 0")
     private int totalPrice;
     
     private List<SelectedService> selectedServices = new ArrayList<>();

@@ -48,7 +48,7 @@ public class ServiceBookingDAO {
 	}
 	public List<ServiceBookingResponse> getServiceByBookingId(int bookingID){
 		List<ServiceBookingResponse> serviceBookings = new ArrayList<ServiceBookingResponse>();
-		String sql = "SELECT services.serviceName, services.servicePrice, servicebookings.quantity FROM servicebookings JOIN roombookings ON "
+		String sql = "SELECT services.serviceID, services.serviceName, services.servicePrice FROM servicebookings JOIN roombookings ON "
 				+ "roombookings.bookingID = servicebookings.bookingID JOIN services ON "
 				+ "servicebookings.serviceID = services.serviceID "
 				+ "WHERE servicebookings.bookingID = ?";
@@ -59,9 +59,9 @@ public class ServiceBookingDAO {
 			try(ResultSet rs = stmt.executeQuery()){
 				while (rs.next()) {
 					ServiceBookingResponse serviceBooking = new ServiceBookingResponse(
-							rs.getInt(1),
-							rs.getString(2),
-							rs.getInt(3));
+							rs.getInt(1),  // serviceID
+							rs.getString(2), // serviceName
+							rs.getInt(3));   // servicePrice
 					serviceBookings.add(serviceBooking);
 				}
 			}

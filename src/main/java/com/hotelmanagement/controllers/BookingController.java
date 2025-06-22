@@ -5,7 +5,6 @@ import com.hotelmanagement.dtos.BookingResponse;
 import com.hotelmanagement.dtos.CancelBookingRequest;
 import com.hotelmanagement.dtos.PaymentRequest;
 import com.hotelmanagement.dtos.SelectedService;
-import com.hotelmanagement.dtos.ServiceBookingResponse;
 import com.hotelmanagement.payment.PaymentStrategy;
 import com.hotelmanagement.room.services.RoomService;
 import com.hotelmanagement.services.BookingService;
@@ -129,17 +128,111 @@ public class BookingController {
 				bindingResult.addError(new FieldError("request", "checkOutDate", 
 					"Ngày trả phòng phải sau ngày nhận phòng"));
 			}
+			
+			// Kiểm tra ngày check-in không được trong quá khứ
+			if (request.getCheckInDate().isBefore(LocalDate.now())) {
+				bindingResult.addError(new FieldError("request", "checkInDate", 
+					"Ngày nhận phòng không được trong quá khứ"));
+			}
+			
+			// Kiểm tra khoảng cách giữa check-in và check-out (ít nhất 1 ngày)
+			long daysBetween = ChronoUnit.DAYS.between(request.getCheckInDate(), request.getCheckOutDate());
+			if (daysBetween < 1) {
+				bindingResult.addError(new FieldError("request", "checkOutDate", 
+					"Thời gian đặt phòng phải ít nhất 1 ngày"));
+			}
+		}
+
+		// Validate Room ID
+		if (request.getRoomId() <= 0) {
+			bindingResult.addError(new FieldError("request", "roomId", 
+				"Vui lòng chọn phòng hợp lệ"));
+		}
+
+		// Validate Payment Method
+		if (request.getPaymentMethodID() <= 0) {
+			bindingResult.addError(new FieldError("request", "paymentMethodID", 
+				"Vui lòng chọn phương thức thanh toán"));
+		}
+
+		// Validate Room Price
+		if (request.getRoomPrice() <= 0) {
+			bindingResult.addError(new FieldError("request", "roomPrice", 
+				"Giá phòng không hợp lệ"));
+		}
+
+		// Validate User ID
+		User currentUser = (User) session.getAttribute("currentUser");
+		if (currentUser == null) {
+			bindingResult.addError(new FieldError("request", "userId", 
+				"Vui lòng đăng nhập để đặt phòng"));
+		} else if (request.getUserId() != currentUser.getUserID()) {
+			bindingResult.addError(new FieldError("request", "userId", 
+				"Thông tin người dùng không hợp lệ"));
+		}
+
+		// Validate selected services quantities
+		if (request.getSelectedServices() != null) {
+			for (int i = 0; i < request.getSelectedServices().size(); i++) {
+				SelectedService service = request.getSelectedServices().get(i);
+				if (service.isSelected() && service.getQuantity() <= 0) {
+					bindingResult.addError(new FieldError("request", 
+						"selectedServices[" + i + "].quantity", 
+						"Số lượng dịch vụ phải lớn hơn 0"));
+				}
+			}
+		}
+
+		// Kiểm tra xem phòng có còn trống không
+		try {
+			var room = roomService.getRoomByID(request.getRoomId());
+			if (room == null) {
+				bindingResult.addError(new FieldError("request", "roomId", 
+					"Phòng không tồn tại"));
+			} else if (!"AVAILABLE".equals(room.getRoomStatus().toString())) {
+				bindingResult.addError(new FieldError("request", "roomId", 
+					"Phòng hiện không khả dụng"));
+			}
+		} catch (Exception e) {
+			bindingResult.addError(new FieldError("request", "roomId", 
+				"Không thể kiểm tra trạng thái phòng"));
 		}
 
 		if (bindingResult.hasErrors()) {
+			// Thêm lại các thông tin cần thiết cho form
 			model.addAttribute("availableServices", services.getAllServices());
 			model.addAttribute("paymentMethods", paymentMethodService.getAllPaymentMethods());
+			
+			// Thêm thông tin phòng đã chọn nếu có
+			try {
+				var room = roomService.getRoomByID(request.getRoomId());
+				if (room != null) {
+					model.addAttribute("selectedRoom", room);
+				}
+			} catch (Exception e) {
+				// Ignore error when room not found
+			}
+			
+			// Thêm thông tin user
+			if (currentUser != null) {
+				model.addAttribute("user", currentUser);
+			}
+			
 			return "createBooking";
 		}
 
 		// Tính tổng tiền
 		int totalPrice = calculateTotalPrice(request);
 		request.setTotalPrice(totalPrice);
+
+		// Validate tổng tiền
+		if (totalPrice <= 0) {
+			bindingResult.addError(new FieldError("request", "totalPrice", 
+				"Tổng tiền không hợp lệ"));
+			model.addAttribute("availableServices", services.getAllServices());
+			model.addAttribute("paymentMethods", paymentMethodService.getAllPaymentMethods());
+			return "createBooking";
+		}
 
 		// Lấy chiến lược thanh toán
 		String strategyName = paymentMethodService.getMethodNameById(request.getPaymentMethodID());

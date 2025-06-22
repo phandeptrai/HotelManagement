@@ -512,6 +512,81 @@ body {
 		// Lấy giá phòng từ BookingRequest
 		const ROOM_PRICE_PER_DAY = ${request.roomPrice};
 
+		// Client-side validation
+		function validateForm() {
+			let isValid = true;
+			const errorMessages = [];
+
+			// Validate Room ID
+			const roomId = document.getElementById('roomId').value;
+			if (!roomId || roomId <= 0) {
+				errorMessages.push("Vui lòng chọn phòng hợp lệ");
+				isValid = false;
+			}
+
+			// Validate Check-in Date
+			const checkInDate = document.getElementById('checkInDate').value;
+			if (!checkInDate) {
+				errorMessages.push("Vui lòng chọn ngày nhận phòng");
+				isValid = false;
+			} else {
+				const checkIn = new Date(checkInDate);
+				const today = new Date();
+				today.setHours(0, 0, 0, 0);
+				if (checkIn < today) {
+					errorMessages.push("Ngày nhận phòng không được trong quá khứ");
+					isValid = false;
+				}
+			}
+
+			// Validate Check-out Date
+			const checkOutDate = document.getElementById('checkOutDate').value;
+			if (!checkOutDate) {
+				errorMessages.push("Vui lòng chọn ngày trả phòng");
+				isValid = false;
+			} else if (checkInDate && checkOutDate) {
+				const checkIn = new Date(checkInDate);
+				const checkOut = new Date(checkOutDate);
+				if (checkOut <= checkIn) {
+					errorMessages.push("Ngày trả phòng phải sau ngày nhận phòng");
+					isValid = false;
+				}
+			}
+
+			// Validate Payment Method
+			const paymentMethod = document.getElementById('paymentMethodID').value;
+			if (!paymentMethod || paymentMethod == 0) {
+				errorMessages.push("Vui lòng chọn phương thức thanh toán");
+				isValid = false;
+			}
+
+			// Validate Services (if selected)
+			const checkboxes = document.querySelectorAll('.service-checkbox');
+			checkboxes.forEach(function(checkbox, index) {
+				if (checkbox.checked) {
+					const quantity = parseInt(document.getElementById('quantity-' + index).value) || 0;
+					if (quantity <= 0) {
+						errorMessages.push("Số lượng dịch vụ phải lớn hơn 0");
+						isValid = false;
+					}
+				}
+			});
+
+			// Validate Total Price
+			const totalPrice = parseInt(document.getElementById('totalPriceInput').value) || 0;
+			if (totalPrice <= 0) {
+				errorMessages.push("Tổng tiền không hợp lệ");
+				isValid = false;
+			}
+
+			// Show error messages if any
+			if (!isValid) {
+				alert("Vui lòng kiểm tra lại thông tin:\n" + errorMessages.join('\n'));
+			}
+
+			return isValid;
+		}
+
 		function calculateTotalDays() {
 			const checkInDate = new Date(document.getElementById('checkInDate').value);
 			const checkOutDate = new Date(document.getElementById('checkOutDate').value);
@@ -546,7 +621,7 @@ body {
 			const checkboxes = document.querySelectorAll('.service-checkbox');
 			const rows = document.querySelectorAll('tbody tr');
 			
-			rows.forEach((row, index) => {
+			rows.forEach(function(row, index) {
 				const checkbox = row.querySelector('.service-checkbox');
 				if (checkbox.checked) {
 					const quantity = parseInt(document.getElementById('quantity-' + index).value) || 0;
@@ -578,13 +653,22 @@ body {
 			const checkboxes = document.querySelectorAll('.service-checkbox');
 			const quantityInputs = document.querySelectorAll('.quantity-input');
 
-			checkboxes.forEach(checkbox => {
+			checkboxes.forEach(function(checkbox) {
 				checkbox.addEventListener('change', updateTotalPrice);
 			});
 
-			quantityInputs.forEach(input => {
+			quantityInputs.forEach(function(input) {
 				input.addEventListener('change', updateTotalPrice);
 				input.addEventListener('input', updateTotalPrice);
+			});
+
+			// Add form validation on submit
+			const form = document.querySelector('form');
+			form.addEventListener('submit', function(e) {
+				if (!validateForm()) {
+					e.preventDefault();
+					return false;
+				}
 			});
 
 			// Initial calculation

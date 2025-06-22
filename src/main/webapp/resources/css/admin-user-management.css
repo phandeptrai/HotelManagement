@@ -12,7 +12,7 @@ body {
     box-shadow: 0 6px 32px rgba(0,0,0,0.10);
     padding: 40px;
     max-width: 1150px;
-    margin: 70px auto 60px auto;
+    margin: 0 auto;
     border: 1.5px solid #e3e6f0;
     position: relative;
     box-sizing: border-box;
@@ -76,20 +76,29 @@ body {
     margin: 0 4px 4px 0;
     cursor: pointer;
     transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
 }
+
 .edit-btn {
     background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
     color: #fff;
 }
+
 .edit-btn:hover {
     background: linear-gradient(135deg, #224abe 0%, #1a365d 100%);
+    transform: translateY(-1px);
 }
+
 .delete-btn {
     background: linear-gradient(135deg,#dc3545 0%,#a71d2a 100%);
     color: #fff;
 }
+
 .delete-btn:hover {
     background: linear-gradient(135deg,#a71d2a 0%,#dc3545 100%);
+    transform: translateY(-1px);
 }
 
 /* Nếu có status cho user (VD: ACTIVE, INACTIVE), có thể thêm style tương tự room */
@@ -102,6 +111,7 @@ body {
     font-weight: 700;
     letter-spacing: 0.5px;
 }
+
 .status-INACTIVE {
     color: #b91c1c;
     background: #fecaca;
@@ -110,4 +120,21 @@ body {
     display: inline-block;
     font-weight: 700;
     letter-spacing: 0.5px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .admin-user-card {
+        margin: 0 15px;
+        padding: 20px;
+    }
+    
+    .admin-user-title {
+        font-size: 1.4rem;
+    }
+    
+    .action-btn {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+    }
 } 
