@@ -296,7 +296,7 @@ public class BookingController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
-        return "redirect:/booking-history";
+        return "redirect:/booking/history";
     }
 
 	@PostMapping("/confirm")
@@ -344,6 +344,21 @@ public class BookingController {
 		List<BookingResponse> bookings = bookingService.getAllBookings();
 		model.addAttribute("bookings", bookings);
 		return "admin/admin-booking-management";
+	}
+
+	@GetMapping("/detail/{bookingId}")
+	public String getBookingDetail(@PathVariable("bookingId") int bookingId, HttpSession session, Model model) {
+		User user = (User) session.getAttribute("currentUser");
+		if (user == null) {
+			return "redirect:/HotelManagement/login";
+		}
+		int userId = user.getUserID();
+		BookingResponse booking = bookingService.getBookingDetailById(bookingId, userId);
+		if (booking == null) {
+			return "redirect:/booking/history";
+		}
+		model.addAttribute("booking", booking);
+		return "booking-detail";
 	}
 
 }
