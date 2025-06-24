@@ -207,14 +207,14 @@
         const bookingStatusCtx = document.getElementById('bookingStatusChart').getContext('2d');
         const bookingStatusData = {
             labels: [
-                <c:forEach items="${stats.bookingStatusStats}" var="status" varStatus="status">
-                    '${status.key}'<c:if test="${!status.last}">,</c:if>
+                <c:forEach items="${stats.bookingStatusStats.keySet()}" var="key" varStatus="status">
+                    '${key}'<c:if test="${!status.last}">,</c:if>
                 </c:forEach>
             ],
             datasets: [{
                 data: [
-                    <c:forEach items="${stats.bookingStatusStats}" var="status" varStatus="status">
-                        ${status.value}<c:if test="${!status.last}">,</c:if>
+                    <c:forEach items="${stats.bookingStatusStats.keySet()}" var="key" varStatus="status">
+                        ${stats.bookingStatusStats[key]}<c:if test="${!status.last}">,</c:if>
                     </c:forEach>
                 ],
                 backgroundColor: [
@@ -240,14 +240,14 @@
         const roomTypeCtx = document.getElementById('roomTypeChart').getContext('2d');
         const roomTypeData = {
             labels: [
-                <c:forEach items="${stats.roomTypeStats}" var="type" varStatus="status">
-                    '${type.key}'<c:if test="${!status.last}">,</c:if>
+                <c:forEach items="${stats.roomTypeStats.keySet()}" var="key" varStatus="status">
+                    '${key}'<c:if test="${!status.last}">,</c:if>
                 </c:forEach>
             ],
             datasets: [{
                 data: [
-                    <c:forEach items="${stats.roomTypeStats}" var="type" varStatus="status">
-                        ${type.value}<c:if test="${!status.last}">,</c:if>
+                    <c:forEach items="${stats.roomTypeStats.keySet()}" var="key" varStatus="status">
+                        ${stats.roomTypeStats[key]}<c:if test="${!status.last}">,</c:if>
                     </c:forEach>
                 ],
                 backgroundColor: [
