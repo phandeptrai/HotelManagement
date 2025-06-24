@@ -364,13 +364,7 @@ body {
 								disabled="true" />
 						</div>
 
-
-						<div class="mb-3">
-							<label class="form-label">Room ID:</label>
-							<form:input path="roomId" cssClass="form-control"
-								placeholder="Nhập ID phòng" />
-							<form:errors path="roomId" cssClass="error-message" />
-						</div>
+						<form:hidden path="roomId" />
 
 						<div class="mb-3">
 							<label class="form-label">Ngày nhận phòng:</label>

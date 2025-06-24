@@ -1,4 +1,3 @@
-
 package com.hotelmanagement.utils;
 
 import java.sql.Connection;
@@ -31,10 +30,12 @@ public class DatabaseConfig {
 		config.setUsername(env.getProperty("spring.datasource.username"));
 		config.setPassword(env.getProperty("spring.datasource.password"));
 
-		config.setMaximumPoolSize(10);
-		config.setMinimumIdle(2);
+		config.setMaximumPoolSize(50);
+		config.setMinimumIdle(10);
 		config.setIdleTimeout(30000);
 		config.setMaxLifetime(1800000);
+		config.setConnectionTimeout(30000);
+		config.setLeakDetectionThreshold(60000);
 
 		hikariDataSource = new HikariDataSource(config);
 		return hikariDataSource;

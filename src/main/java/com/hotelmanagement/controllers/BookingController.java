@@ -6,6 +6,8 @@ import com.hotelmanagement.dtos.CancelBookingRequest;
 import com.hotelmanagement.dtos.PaymentRequest;
 import com.hotelmanagement.dtos.SelectedService;
 import com.hotelmanagement.payment.PaymentStrategy;
+import com.hotelmanagement.room.models.Room;
+import com.hotelmanagement.room.models.RoomSearchCriteria;
 import com.hotelmanagement.room.services.RoomService;
 import com.hotelmanagement.services.BookingService;
 import com.hotelmanagement.services.IServiceBooking;
@@ -294,7 +296,7 @@ public class BookingController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
-        return "redirect:/booking-history";
+        return "redirect:/booking/history";
     }
 
 	@PostMapping("/confirm")
@@ -343,4 +345,20 @@ public class BookingController {
 		model.addAttribute("bookings", bookings);
 		return "admin/admin-booking-management";
 	}
+
+	@GetMapping("/detail/{bookingId}")
+	public String getBookingDetail(@PathVariable("bookingId") int bookingId, HttpSession session, Model model) {
+		User user = (User) session.getAttribute("currentUser");
+		if (user == null) {
+			return "redirect:/HotelManagement/login";
+		}
+		int userId = user.getUserID();
+		BookingResponse booking = bookingService.getBookingDetailById(bookingId, userId);
+		if (booking == null) {
+			return "redirect:/booking/history";
+		}
+		model.addAttribute("booking", booking);
+		return "booking-detail";
+	}
+
 }

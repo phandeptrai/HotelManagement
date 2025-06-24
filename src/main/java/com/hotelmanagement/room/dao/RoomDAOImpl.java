@@ -15,9 +15,11 @@ import org.springframework.stereotype.Repository;
 import com.hotelmanagement.dtos.RoomFormDTO;
 import com.hotelmanagement.room.factory.RoomFactory;
 import com.hotelmanagement.room.models.Room;
+import com.hotelmanagement.room.models.RoomSearchCriteria;
 import com.hotelmanagement.room.models.RoomType;
 import com.hotelmanagement.room.models.enums.RoomStatus;
 import com.hotelmanagement.room.models.enums.RoomTypeName;
+import com.hotelmanagement.utils.DatabaseConfig;
 
 @Repository
 public class RoomDAOImpl implements RoomDAO {
@@ -202,5 +204,89 @@ public class RoomDAOImpl implements RoomDAO {
             e.printStackTrace();
         }
     }
+    
+    @Override
+    public List<Room> searchRooms(RoomSearchCriteria criteria) {
+        List<Room> rooms = new ArrayList<>();
+        StringBuilder sql = new StringBuilder(
+            "SELECT r.roomID, r.roomNumber, r.roomTypeID, r.status, r.price, rt.typeName " +
+            "FROM rooms r JOIN roomtypes rt ON r.roomTypeID = rt.roomTypeID WHERE 1=1"
+        );
+
+        List<Object> params = new ArrayList<>();
+
+        // Tìm kiếm theo số phòng
+        if (criteria.getRoomNumber() != null && !criteria.getRoomNumber().trim().isEmpty()) {
+            sql.append(" AND r.roomNumber LIKE ?");
+            params.add("%" + criteria.getRoomNumber().trim() + "%");
+        }
+
+        // Tìm kiếm theo loại phòng
+        if (criteria.getRoomTypeName() != null) {
+            sql.append(" AND rt.typeName = ?");
+            params.add(criteria.getRoomTypeName().name());
+        }
+
+        // Tìm kiếm theo giá tối thiểu
+        if (criteria.getMinPrice() != null && criteria.getMinPrice() > 0) {
+            sql.append(" AND r.price >= ?");
+            params.add(criteria.getMinPrice());
+        }
+
+        // Tìm kiếm theo giá tối đa
+        if (criteria.getMaxPrice() != null && criteria.getMaxPrice() > 0) {
+            sql.append(" AND r.price <= ?");
+            params.add(criteria.getMaxPrice());
+        }
+
+        // Tìm kiếm theo trạng thái phòng
+        if (criteria.getRoomStatus() != null) {
+            sql.append(" AND r.status = ?");
+            params.add(criteria.getRoomStatus().name());
+        }
+
+        // Tìm kiếm theo trạng thái available (nếu available = true thì chỉ lấy phòng AVAILABLE)
+        if (criteria.getAvailable() != null && criteria.getAvailable()) {
+            sql.append(" AND r.status = 'AVAILABLE'");
+        }
+
+        // Sắp xếp kết quả theo số phòng
+        sql.append(" ORDER BY r.roomNumber ASC");
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+
+            // Set parameters
+            for (int i = 0; i < params.size(); i++) {
+                stmt.setObject(i + 1, params.get(i));
+            }
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                RoomTypeName typeName = RoomTypeName.valueOf(rs.getString("typeName").toUpperCase());
+                Room room = RoomFactory.createRoomByTypeName(typeName);
+
+                room.setRoomID(rs.getInt("roomID"));
+                room.setRoomNumber(rs.getString("roomNumber"));
+                room.setRoomTypeID(rs.getInt("roomTypeID"));
+                room.setRoomStatus(RoomStatus.valueOf(rs.getString("status")));
+                room.setPrice(rs.getDouble("price"));
+
+                RoomType roomType = new RoomType();
+                roomType.setRoomTypeID(rs.getInt("roomTypeID"));
+                roomType.setTypeName(typeName);
+                room.setRoomType(roomType);
+
+                rooms.add(room);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Lỗi khi tìm kiếm phòng: " + e.getMessage());
+        }
+
+        return rooms;
+    }
+
 
 }

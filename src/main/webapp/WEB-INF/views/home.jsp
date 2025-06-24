@@ -288,6 +288,57 @@ body {
 	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
+.search-section {
+	background: white;
+	border-radius: 16px;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+	overflow: hidden;
+}
+
+.search-section .card {
+	border: none;
+	border-radius: 16px;
+}
+
+.search-section .card-title {
+	color: var(--primary-color);
+	font-weight: 600;
+	font-size: 1.2rem;
+	letter-spacing: -0.3px;
+}
+
+.search-section .form-label {
+	font-weight: 500;
+	color: var(--dark-color);
+	font-size: 0.9rem;
+	letter-spacing: 0.2px;
+}
+
+.search-section .form-control,
+.search-section .form-select {
+	border-radius: 10px;
+	border: 2px solid #e9ecef;
+	transition: all 0.3s ease;
+	font-size: 0.9rem;
+}
+
+.search-section .form-control:focus,
+.search-section .form-select:focus {
+	border-color: var(--primary-color);
+	box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+.search-section .form-check-input:checked {
+	background-color: var(--primary-color);
+	border-color: var(--primary-color);
+}
+
+.search-section .form-check-label {
+	font-size: 0.9rem;
+	color: var(--dark-color);
+	font-weight: 500;
+}
+
 .stat-item {
 	text-align: center;
 	padding: 1.5rem 1rem;
@@ -351,6 +402,28 @@ body {
 	.room-card .card-title {
 		font-size: 1.1rem;
 	}
+	
+	.search-section .card-body {
+		padding: 1rem;
+	}
+	
+	.search-section .row {
+		margin: 0;
+	}
+	
+	.search-section .col-md-3,
+	.search-section .col-md-2 {
+		padding: 0.5rem;
+	}
+	
+	.search-section .d-flex {
+		flex-direction: column;
+		gap: 1rem !important;
+	}
+	
+	.search-section .form-check {
+		margin: 0;
+	}
 }
 </style>
 </head>
@@ -410,11 +483,85 @@ body {
 		</div>
 	</div>
 
+	<!-- Search Section -->
+	<div class="container">
+		<div class="search-section mb-4">
+			<div class="card">
+				<div class="card-body">
+					<h5 class="card-title mb-3">
+						<i class="bi bi-search"></i> Tìm kiếm phòng
+					</h5>
+					<form method="GET" action="${pageContext.request.contextPath}/home/search" class="row g-3">
+						<div class="col-md-3">
+							<label for="roomNumber" class="form-label">Số phòng</label>
+							<input type="text" class="form-control" id="roomNumber" name="roomNumber" 
+								   placeholder="Nhập số phòng..." value="${param.roomNumber}">
+						</div>
+						<div class="col-md-3">
+							<label for="roomTypeName" class="form-label">Loại phòng</label>
+							<select class="form-select" id="roomTypeName" name="roomTypeName">
+								<option value="">Tất cả loại phòng</option>
+								<option value="SINGLE" ${param.roomTypeName == 'SINGLE' ? 'selected' : ''}>Phòng đơn</option>
+								<option value="DOUBLE" ${param.roomTypeName == 'DOUBLE' ? 'selected' : ''}>Phòng đôi</option>
+								<option value="SUITE" ${param.roomTypeName == 'SUITE' ? 'selected' : ''}>Phòng Suite</option>
+							</select>
+						</div>
+						<div class="col-md-2">
+							<label for="minPrice" class="form-label">Giá từ</label>
+							<input type="number" class="form-control" id="minPrice" name="minPrice" 
+								   placeholder="VNĐ" value="${param.minPrice}">
+						</div>
+						<div class="col-md-2">
+							<label for="maxPrice" class="form-label">Giá đến</label>
+							<input type="number" class="form-control" id="maxPrice" name="maxPrice" 
+								   placeholder="VNĐ" value="${param.maxPrice}">
+						</div>
+						<div class="col-md-2">
+							<label for="roomStatus" class="form-label">Trạng thái</label>
+							<select class="form-select" id="roomStatus" name="roomStatus">
+								<option value="">Tất cả</option>
+								<option value="AVAILABLE" ${param.roomStatus == 'AVAILABLE' ? 'selected' : ''}>Trống</option>
+								<option value="BOOKED" ${param.roomStatus == 'BOOKED' ? 'selected' : ''}>Đã đặt</option>
+								<option value="MAINTENANCE" ${param.roomStatus == 'MAINTENANCE' ? 'selected' : ''}>Bảo trì</option>
+							</select>
+						</div>
+						<div class="col-12">
+							<div class="d-flex gap-2">
+								<button type="submit" class="btn btn-primary">
+									<i class="bi bi-search"></i> Tìm kiếm
+								</button>
+								<a href="${pageContext.request.contextPath}/rooms/home" class="btn btn-outline-secondary">
+									<i class="bi bi-arrow-clockwise"></i> Làm mới
+								</a>
+								<div class="form-check ms-3">
+									<input class="form-check-input" type="checkbox" id="available" name="available" value="true" 
+										   ${param.available == 'true' ? 'checked' : ''}>
+									<label class="form-check-label" for="available">
+										Chỉ hiển thị phòng trống
+									</label>
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+
 	<!-- Rooms Section -->
 	<div class="container">
 		<div class="section-title">
 			<h2>Danh sách phòng</h2>
-			<p>Chọn phòng phù hợp với nhu cầu của bạn</p>
+			<p>
+				<c:choose>
+					<c:when test="${not empty param.roomNumber or not empty param.roomTypeName or not empty param.minPrice or not empty param.maxPrice or not empty param.roomStatus or param.available == 'true'}">
+						Kết quả tìm kiếm (${rooms.size()} phòng)
+					</c:when>
+					<c:otherwise>
+						Chọn phòng phù hợp với nhu cầu của bạn
+					</c:otherwise>
+				</c:choose>
+			</p>
 		</div>
 
 		<c:choose>
@@ -477,5 +624,96 @@ body {
 	</div>
 
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	
+	<script>
+		// Form validation và auto-submit
+		document.addEventListener('DOMContentLoaded', function() {
+			const searchForm = document.querySelector('form[action*="/home/search"]');
+			const inputs = searchForm.querySelectorAll('input, select');
+			
+			// Auto-submit khi thay đổi select
+			const selects = searchForm.querySelectorAll('select');
+			selects.forEach(select => {
+				select.addEventListener('change', function() {
+					if (this.value !== '') {
+						searchForm.submit();
+					}
+				});
+			});
+			
+			// Auto-submit khi check/uncheck available
+			const availableCheckbox = document.getElementById('available');
+			availableCheckbox.addEventListener('change', function() {
+				searchForm.submit();
+			});
+			
+			// Validation cho giá
+			const minPriceInput = document.getElementById('minPrice');
+			const maxPriceInput = document.getElementById('maxPrice');
+			
+			minPriceInput.addEventListener('input', function() {
+				const minPrice = parseInt(this.value) || 0;
+				const maxPrice = parseInt(maxPriceInput.value) || 0;
+				
+				if (maxPrice > 0 && minPrice > maxPrice) {
+					this.setCustomValidity('Giá tối thiểu không được lớn hơn giá tối đa');
+				} else {
+					this.setCustomValidity('');
+				}
+			});
+			
+			maxPriceInput.addEventListener('input', function() {
+				const maxPrice = parseInt(this.value) || 0;
+				const minPrice = parseInt(minPriceInput.value) || 0;
+				
+				if (minPrice > 0 && maxPrice > 0 && minPrice > maxPrice) {
+					this.setCustomValidity('Giá tối đa không được nhỏ hơn giá tối thiểu');
+				} else {
+					this.setCustomValidity('');
+				}
+			});
+			
+			// Clear form
+			const clearBtn = document.querySelector('a[href*="/home"]');
+			clearBtn.addEventListener('click', function(e) {
+				e.preventDefault();
+				inputs.forEach(input => {
+					if (input.type === 'checkbox') {
+						input.checked = false;
+					} else {
+						input.value = '';
+					}
+				});
+				searchForm.submit();
+			});
+			
+			// Highlight active search criteria
+			const activeParams = new URLSearchParams(window.location.search);
+			if (activeParams.toString()) {
+				searchForm.style.border = '2px solid var(--primary-color)';
+				searchForm.style.borderRadius = '16px';
+				searchForm.style.padding = '1rem';
+				searchForm.style.backgroundColor = 'rgba(78, 115, 223, 0.05)';
+			}
+		});
+		
+		// Smooth scroll to results
+		function scrollToResults() {
+			const roomsSection = document.querySelector('.section-title');
+			if (roomsSection) {
+				roomsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			}
+		}
+		
+		// Auto-scroll after search
+		if (window.location.search.includes('roomNumber') || 
+			window.location.search.includes('roomTypeName') || 
+			window.location.search.includes('minPrice') || 
+			window.location.search.includes('maxPrice') || 
+			window.location.search.includes('roomStatus') || 
+			window.location.search.includes('available')) {
+			setTimeout(scrollToResults, 500);
+		}
+	</script>
 </body>
 </html>
