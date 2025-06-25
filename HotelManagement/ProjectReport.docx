@@ -1,0 +1,101 @@
+# ProjectReport.docx
+
+---
+
+**3. Giới thiệu đề tài**
+
+**Lý do chọn đề tài**
+- [Viết lý do chọn đề tài, ví dụ: nhu cầu quản lý khách sạn hiện đại, số hóa quy trình, ...]
+
+**Mục tiêu của ứng dụng**
+- [Nêu mục tiêu: quản lý đặt phòng, người dùng, thanh toán, ...]
+
+**Phạm vi đề tài**
+- [Liệt kê các chức năng đã làm: đặt phòng, quản lý phòng, quản lý người dùng, ...]
+- [Liệt kê các chức năng không làm: tích hợp IoT, AI, ...]
+
+---
+
+**4. Phân tích hệ thống**
+
+**4.1. Yêu cầu hệ thống**
+- *Yêu cầu chức năng:*
+  - [Liệt kê các chức năng chính: đăng ký, đăng nhập, đặt phòng, hủy phòng, ...]
+- *Yêu cầu phi chức năng:*
+  - [Hiệu năng, bảo mật, giao diện thân thiện, ...]
+
+**4.2. Các đối tượng sử dụng (user roles)**
+- Admin
+- Người dùng thường
+- [Khách vãng lai, ...]
+
+**4.3. Use case diagram**
+- [Chèn sơ đồ use case tại đây]
+- *Mô tả chi tiết từng use case:*
+  - [Tên use case, mô tả, actor, luồng chính, luồng phụ, ...]
+
+---
+
+**5. Thiết kế hệ thống**
+
+**5.1. Kiến trúc tổng thể của ứng dụng**
+- Spring MVC phân lớp: Controller, Service, DAO, Model
+- [Vẽ sơ đồ kiến trúc tổng thể, chèn hình tại đây]
+
+**5.2. Sơ đồ lớp (Class Diagram)**
+- [Chèn sơ đồ class diagram tại đây]
+
+**5.3. Cơ sở dữ liệu**
+- *Thiết kế CSDL (ERD):*
+  - [Chèn sơ đồ ERD tại đây]
+- *Mô tả các bảng, khóa chính – ngoại, quan hệ:*
+  - [Bảng: User, Room, Booking, ...]
+
+**5.4. Luồng xử lý chính**
+- [Vẽ Sequence Diagram hoặc Activity Diagram cho các chức năng: đặt phòng, thanh toán, ...]
+
+---
+
+**6. Cài đặt hệ thống**
+
+**6.1. Công nghệ sử dụng**
+- Java, Spring MVC, JSP/Thymeleaf, MySQL, Maven/Gradle, ...
+
+**6.2. Cấu trúc thư mục dự án**
+- [Chèn hình cấu trúc thư mục, mô tả các thư mục chính]
+
+**6.3. Các chức năng đã triển khai**
+- [Mô tả giao diện, chức năng từng phần]
+- [Chèn ảnh chụp màn hình minh họa]
+
+---
+
+**7. Kiểm thử**
+- *Các phương pháp kiểm thử:*
+  - Unit test, Manual test, ...
+- *Các test case quan trọng:*
+  - [Liệt kê test case: đăng nhập, đặt phòng, ...]
+- *Kết quả kiểm thử:*
+  - [Bảng kết quả, nhận xét]
+
+---
+
+**8. Đánh giá và hướng phát triển**
+- *Ưu điểm của ứng dụng:*
+  - [Liệt kê ưu điểm]
+- *Những hạn chế hiện tại:*
+  - [Liệt kê hạn chế]
+- *Định hướng phát triển trong tương lai:*
+  - [Liệt kê định hướng]
+
+---
+
+**9. Tài liệu tham khảo**
+- [Liệt kê sách, trang web, tài liệu kỹ thuật đã dùng]
+
+---
+
+*Lưu ý:*
+- Font: Times New Roman, cỡ chữ 13, căn lề chuẩn.
+- Các mục có thể bổ sung hình ảnh, sơ đồ, bảng biểu minh họa.
+- Điền nội dung chi tiết cho từng mục theo thực tế dự án. 
