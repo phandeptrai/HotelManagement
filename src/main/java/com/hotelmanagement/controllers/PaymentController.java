@@ -28,7 +28,6 @@ public class PaymentController {
 			BookingRequest bookingRequest = (BookingRequest) session.getAttribute("bookingRequest");
 			if (bookingRequest != null) {
 				try {
-					// Đảm bảo tổng tiền đã được tính đúng trước khi lưu
 					if (bookingRequest.getTotalPrice() <= 0) {
 						model.addAttribute("message", "Lỗi: Tổng tiền không hợp lệ");
 						return "paymentResult";
