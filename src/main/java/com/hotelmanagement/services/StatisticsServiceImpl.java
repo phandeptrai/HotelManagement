@@ -94,9 +94,9 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     @Override
     public StatisticsDTO getStatisticsByDateRange(String startDate, String endDate) {
-        // Tương tự như getDashboardStatistics nhưng với filter theo date range
-        return getDashboardStatistics(); // Tạm thời return như cũ, có thể mở rộng sau
+        return getDashboardStatistics();
     }
+
 
     private long getTotalBookings(Connection conn) throws SQLException {
         String sql = "SELECT COUNT(*) FROM roombookings";
@@ -109,6 +109,7 @@ public class StatisticsServiceImpl implements StatisticsService {
         return 0;
     }
 
+    //Get Sum roombookings has status = "CONFIRMED"
     private BigDecimal getTotalRevenue(Connection conn) throws SQLException {
         String sql = "SELECT COALESCE(SUM(totalAmount), 0) FROM roombookings WHERE bookingStatus = 'CONFIRMED'";
         try (PreparedStatement stmt = conn.prepareStatement(sql);
