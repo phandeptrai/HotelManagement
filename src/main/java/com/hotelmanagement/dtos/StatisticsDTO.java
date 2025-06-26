@@ -5,182 +5,146 @@ import java.util.List;
 import java.util.Map;
 
 public class StatisticsDTO {
-    private long totalBookings;
-    private long totalUsers;
-    private long totalRooms;
-    private long availableRooms;
-    private long bookedRooms;
-    private long maintenanceRooms;
-    private BigDecimal totalRevenue;
-    private BigDecimal monthlyRevenue;
-    private BigDecimal weeklyRevenue;
-    private Map<String, Long> bookingStatusStats;
-    private Map<String, Long> roomTypeStats;
-    private List<MonthlyRevenueDTO> monthlyRevenueData;
-    private List<DailyBookingDTO> dailyBookingData;
+	private long totalBookings;
+	private long totalUsers;
+	private long totalRooms;
+	private long availableRooms;
+	private long bookedRooms;
+	private long maintenanceRooms;
+	private BigDecimal totalRevenue;
+	private BigDecimal monthlyRevenue;
+	private BigDecimal weeklyRevenue;
+	private Map<String, Long> bookingStatusStats;
+	private Map<String, Long> roomTypeStats;
+	private List<MonthlyRevenueDTO> monthlyRevenueData;
+	private List<DailyBookingDTO> dailyBookingData;
 
-    // Constructors
-    public StatisticsDTO() {}
+	public static class MonthlyRevenueDTO extends MonthlyRevenueDataDTO {
+		public MonthlyRevenueDTO() {
+			super();
+		}
 
-    // Getters and Setters
-    public long getTotalBookings() {
-        return totalBookings;
-    }
+		public MonthlyRevenueDTO(String month, BigDecimal revenue) {
+			super(month, revenue);
+		}
+	}
 
-    public void setTotalBookings(long totalBookings) {
-        this.totalBookings = totalBookings;
-    }
+	public static class DailyBookingDTO extends DailyBookingDataDTO {
+		public DailyBookingDTO() {
+			super();
+		}
 
-    public long getTotalUsers() {
-        return totalUsers;
-    }
+		public DailyBookingDTO(String date, long bookingCount) {
+			super(date, bookingCount);
+		}
+	}
 
-    public void setTotalUsers(long totalUsers) {
-        this.totalUsers = totalUsers;
-    }
+	// Constructors
+	public StatisticsDTO() {
+	}
 
-    public long getTotalRooms() {
-        return totalRooms;
-    }
+	// Getters and Setters
+	public long getTotalBookings() {
+		return totalBookings;
+	}
 
-    public void setTotalRooms(long totalRooms) {
-        this.totalRooms = totalRooms;
-    }
+	public void setTotalBookings(long totalBookings) {
+		this.totalBookings = totalBookings;
+	}
 
-    public long getAvailableRooms() {
-        return availableRooms;
-    }
+	public long getTotalUsers() {
+		return totalUsers;
+	}
 
-    public void setAvailableRooms(long availableRooms) {
-        this.availableRooms = availableRooms;
-    }
+	public void setTotalUsers(long totalUsers) {
+		this.totalUsers = totalUsers;
+	}
 
-    public long getBookedRooms() {
-        return bookedRooms;
-    }
+	public long getTotalRooms() {
+		return totalRooms;
+	}
 
-    public void setBookedRooms(long bookedRooms) {
-        this.bookedRooms = bookedRooms;
-    }
+	public void setTotalRooms(long totalRooms) {
+		this.totalRooms = totalRooms;
+	}
 
-    public long getMaintenanceRooms() {
-        return maintenanceRooms;
-    }
+	public long getAvailableRooms() {
+		return availableRooms;
+	}
 
-    public void setMaintenanceRooms(long maintenanceRooms) {
-        this.maintenanceRooms = maintenanceRooms;
-    }
+	public void setAvailableRooms(long availableRooms) {
+		this.availableRooms = availableRooms;
+	}
 
-    public BigDecimal getTotalRevenue() {
-        return totalRevenue;
-    }
+	public long getBookedRooms() {
+		return bookedRooms;
+	}
 
-    public void setTotalRevenue(BigDecimal totalRevenue) {
-        this.totalRevenue = totalRevenue;
-    }
+	public void setBookedRooms(long bookedRooms) {
+		this.bookedRooms = bookedRooms;
+	}
 
-    public BigDecimal getMonthlyRevenue() {
-        return monthlyRevenue;
-    }
+	public long getMaintenanceRooms() {
+		return maintenanceRooms;
+	}
 
-    public void setMonthlyRevenue(BigDecimal monthlyRevenue) {
-        this.monthlyRevenue = monthlyRevenue;
-    }
+	public void setMaintenanceRooms(long maintenanceRooms) {
+		this.maintenanceRooms = maintenanceRooms;
+	}
 
-    public BigDecimal getWeeklyRevenue() {
-        return weeklyRevenue;
-    }
+	public BigDecimal getTotalRevenue() {
+		return totalRevenue;
+	}
 
-    public void setWeeklyRevenue(BigDecimal weeklyRevenue) {
-        this.weeklyRevenue = weeklyRevenue;
-    }
+	public void setTotalRevenue(BigDecimal totalRevenue) {
+		this.totalRevenue = totalRevenue;
+	}
 
-    public Map<String, Long> getBookingStatusStats() {
-        return bookingStatusStats;
-    }
+	public BigDecimal getMonthlyRevenue() {
+		return monthlyRevenue;
+	}
 
-    public void setBookingStatusStats(Map<String, Long> bookingStatusStats) {
-        this.bookingStatusStats = bookingStatusStats;
-    }
+	public void setMonthlyRevenue(BigDecimal monthlyRevenue) {
+		this.monthlyRevenue = monthlyRevenue;
+	}
 
-    public Map<String, Long> getRoomTypeStats() {
-        return roomTypeStats;
-    }
+	public BigDecimal getWeeklyRevenue() {
+		return weeklyRevenue;
+	}
 
-    public void setRoomTypeStats(Map<String, Long> roomTypeStats) {
-        this.roomTypeStats = roomTypeStats;
-    }
+	public void setWeeklyRevenue(BigDecimal weeklyRevenue) {
+		this.weeklyRevenue = weeklyRevenue;
+	}
 
-    public List<MonthlyRevenueDTO> getMonthlyRevenueData() {
-        return monthlyRevenueData;
-    }
+	public Map<String, Long> getBookingStatusStats() {
+		return bookingStatusStats;
+	}
 
-    public void setMonthlyRevenueData(List<MonthlyRevenueDTO> monthlyRevenueData) {
-        this.monthlyRevenueData = monthlyRevenueData;
-    }
+	public void setBookingStatusStats(Map<String, Long> bookingStatusStats) {
+		this.bookingStatusStats = bookingStatusStats;
+	}
 
-    public List<DailyBookingDTO> getDailyBookingData() {
-        return dailyBookingData;
-    }
+	public Map<String, Long> getRoomTypeStats() {
+		return roomTypeStats;
+	}
 
-    public void setDailyBookingData(List<DailyBookingDTO> dailyBookingData) {
-        this.dailyBookingData = dailyBookingData;
-    }
+	public void setRoomTypeStats(Map<String, Long> roomTypeStats) {
+		this.roomTypeStats = roomTypeStats;
+	}
 
-    // Inner classes for chart data
-    public static class MonthlyRevenueDTO {
-        private String month;
-        private BigDecimal revenue;
+	public List<MonthlyRevenueDTO> getMonthlyRevenueData() {
+		return monthlyRevenueData;
+	}
 
-        public MonthlyRevenueDTO() {}
+	public void setMonthlyRevenueData(List<MonthlyRevenueDTO> monthlyRevenueData) {
+		this.monthlyRevenueData = monthlyRevenueData;
+	}
 
-        public MonthlyRevenueDTO(String month, BigDecimal revenue) {
-            this.month = month;
-            this.revenue = revenue;
-        }
+	public List<DailyBookingDTO> getDailyBookingData() {
+		return dailyBookingData;
+	}
 
-        public String getMonth() {
-            return month;
-        }
-
-        public void setMonth(String month) {
-            this.month = month;
-        }
-
-        public BigDecimal getRevenue() {
-            return revenue;
-        }
-
-        public void setRevenue(BigDecimal revenue) {
-            this.revenue = revenue;
-        }
-    }
-
-    public static class DailyBookingDTO {
-        private String date;
-        private long bookingCount;
-
-        public DailyBookingDTO() {}
-
-        public DailyBookingDTO(String date, long bookingCount) {
-            this.date = date;
-            this.bookingCount = bookingCount;
-        }
-
-        public String getDate() {
-            return date;
-        }
-
-        public void setDate(String date) {
-            this.date = date;
-        }
-
-        public long getBookingCount() {
-            return bookingCount;
-        }
-
-        public void setBookingCount(long bookingCount) {
-            this.bookingCount = bookingCount;
-        }
-    }
-} 
+	public void setDailyBookingData(List<DailyBookingDTO> dailyBookingData) {
+		this.dailyBookingData = dailyBookingData;
+	}
+}

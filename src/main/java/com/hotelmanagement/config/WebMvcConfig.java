@@ -1,3 +1,4 @@
+
 package com.hotelmanagement.config;
 
 import org.springframework.context.annotation.Bean;
@@ -41,16 +42,14 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	}
 
 	@Override
-	public void configureAsyncSupport(AsyncSupportConfigurer configurer) {
-		// Cấu hình async request timeout
+	public void configureAsyncSupport(AsyncSupportConfigurer configurer) { // Cấu hình async request timeout
 		configurer.setDefaultTimeout(30000); // 30 giây
 		configurer.setTaskExecutor((AsyncTaskExecutor) taskExecutor());
 	}
 
-	// Sử dụng taskExecutor từ ApplicationConfig
-	private org.springframework.core.task.TaskExecutor taskExecutor() {
-		org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor executor = 
-			new org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor();
+	// Sử dụng taskExecutor từ ApplicationConfig private
+	org.springframework.core.task.TaskExecutor taskExecutor() {
+		org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor executor = new org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor();
 		executor.setCorePoolSize(50);
 		executor.setMaxPoolSize(100);
 		executor.setQueueCapacity(500);
